@@ -1,34 +1,39 @@
 """One-command launcher for all 5 paid x402 microservices."""
 
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
 
+# Make the services directory importable
+SERVICES_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SERVICES_DIR))
+
+from dotenv import load_dotenv
 load_dotenv()
 
 import multiprocessing as mp
 import os
-
 import uvicorn
 
 
 SERVICES = [
     (
-        "services.search_service:app",
+        "search_service:app",
         int(os.environ.get("SEARCH_SERVICE_PORT", 8001)),
     ),
     (
-        "services.summarize_service:app",
+        "summarize_service:app",
         int(os.environ.get("SUMMARIZE_SERVICE_PORT", 8002)),
     ),
     (
-        "services.factcheck_service:app",
+        "factcheck_service:app",
         int(os.environ.get("FACTCHECK_SERVICE_PORT", 8003)),
     ),
     (
-        "services.enrich_service:app",
+        "enrich_service:app",
         int(os.environ.get("ENRICH_SERVICE_PORT", 8004)),
     ),
     (
-        "services.report_service:app",
+        "report_service:app",
         int(os.environ.get("REPORT_SERVICE_PORT", 8005)),
     ),
 ]
@@ -44,42 +49,33 @@ def _run(app_path: str, port: int):
 
 
 def main():
-    processes = []
-
-    print("Starting paid x402 services...")
+    procs = []
 
     for app_path, port in SERVICES:
-        process = mp.Process(
+        p = mp.Process(
             target=_run,
             args=(app_path, port),
         )
+        p.start()
+        procs.append(p)
 
-        process.start()
-        processes.append(process)
-
-    print("\nLaunched paid x402 services:\n")
+    print("Launched paid x402 services:")
 
     for app_path, port in SERVICES:
-        print(
-            f"  - {app_path:<35} "
-            f"http://localhost:{port}"
-        )
-
-    print()
+        print(f"  - {app_path:<25} http://localhost:{port}")
 
     try:
-        for process in processes:
-            process.join()
-
+        for p in procs:
+            p.join()
     except KeyboardInterrupt:
         print("\nStopping paid x402 services...")
 
-        for process in processes:
-            if process.is_alive():
-                process.terminate()
+        for p in procs:
+            if p.is_alive():
+                p.terminate()
 
-        for process in processes:
-            process.join(timeout=5)
+        for p in procs:
+            p.join()
 
 
 if __name__ == "__main__":
