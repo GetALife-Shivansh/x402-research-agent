@@ -1,534 +1,1773 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>x402 Research Orchestrator</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-  :root {
-    --bg: #0b0d12;
-    --panel: #14171f;
-    --border: #2a2f3a;
-    --text: #e6e6e6;
-    --muted: #9aa;
-    --accent: #d97757;
-    --accent-dim: #8a4f37;
-  }
+  <title>x402 Research Orchestrator</title>
 
-  * { box-sizing: border-box; }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-  }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  .page {
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 40px 24px 180px;
-  }
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Zen+Maru+Gothic:wght@500;700&family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  >
 
-  h1 {
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-  }
+  <style>
+    :root {
+      --color-bg: #060a17;
+      --color-bg-light: #0a1226;
+      --color-panel: rgba(16, 24, 48, 0.72);
 
-  .subtitle {
-    color: var(--muted);
-    font-size: 0.95rem;
-    margin-bottom: 20px;
-  }
+      --color-sakura: #5b8dee;
+      --color-sakurasoft: #2c4478;
 
-  .toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+      --color-lav: #7fa7f2;
+      --color-lavsoft: #33447a;
 
-  .pill-btn {
-    padding: 7px 14px;
-    background: var(--panel);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
+      --color-gold: #a9c4ff;
 
-  .pill-btn:hover:not(:disabled) {
-    border-color: var(--accent-dim);
-  }
+      --color-ink: #eaf0ff;
+      --color-inksoft: #9fb1d9;
 
-  .pill-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+      --color-up: #35c98a;
+      --color-upink: #4fe0a6;
 
-  .pill-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+      --color-border: rgba(127, 167, 242, 0.18);
 
-  .status {
-    color: var(--muted);
-    margin-bottom: 16px;
-    font-size: 0.9rem;
-    min-height: 1.2em;
-  }
+      --font-display: "Fraunces", "Times New Roman", serif;
+      --font-jp: "Zen Maru Gothic", sans-serif;
+      --font-body: "M PLUS Rounded 1c", ui-rounded, sans-serif;
+    }
 
-  .content-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  /* rendered report styling */
-  #report {
-    flex: 1;
-    min-width: 0;
-    background: var(--panel);
-    padding: 22px 26px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    display: none;
-    line-height: 1.6;
-    font-size: 0.95rem;
-  }
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      min-height: 100%;
+    }
 
-  #report h1, #report h2, #report h3 {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: 600;
-    color: var(--text);
-    margin: 1.4em 0 0.6em;
-    line-height: 1.3;
-  }
+    body {
+      font-family: var(--font-body);
+      color: var(--color-ink);
+      background: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-  #report h1 { font-size: 1.35rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4em; }
-  #report h2 { font-size: 1.15rem; color: var(--accent); }
-  #report h3 { font-size: 1.02rem; color: var(--muted); }
+    /* --------------------------------------------------
+       BACKGROUND
+    -------------------------------------------------- */
 
-  #report p { margin: 0.8em 0; }
+    .sky {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
 
-  #report strong { color: #fff; font-weight: 600; }
+      background:
+        radial-gradient(
+          120% 80% at 78% 4%,
+          #16234a 0%,
+          rgba(22, 35, 74, 0) 45%
+        ),
+        radial-gradient(
+          90% 70% at 15% 0%,
+          #1a2550 0%,
+          rgba(26, 37, 80, 0) 48%
+        ),
+        linear-gradient(
+          180deg,
+          #0a1226 0%,
+          #080f22 38%,
+          #060b1c 72%,
+          #040814 100%
+        );
+    }
 
-  #report ul, #report ol {
-    margin: 0.6em 0;
-    padding-left: 1.4em;
-  }
+    .sun {
+      position: fixed;
+      top: 6%;
+      right: 12%;
 
-  #report li { margin: 0.3em 0; }
+      width: 220px;
+      height: 220px;
 
-  #report hr {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 1.6em 0;
-  }
+      z-index: -2;
 
-  #report code {
-    background: #1d212b;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.88em;
-  }
+      border-radius: 9999px;
 
-  #report a { color: var(--accent); text-decoration: none; }
-  #report a:hover { text-decoration: underline; }
+      background:
+        radial-gradient(
+          circle,
+          rgba(91, 141, 238, 0.35) 0%,
+          rgba(52, 80, 160, 0.18) 45%,
+          rgba(52, 80, 160, 0) 72%
+        );
 
-  #report table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1em 0 1.4em;
-    font-size: 0.88rem;
-    overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-  }
+      filter: blur(4px);
+      opacity: 0.9;
+      pointer-events: none;
+    }
 
-  #report th {
-    background: #1a1e28;
-    color: var(--accent);
-    font-weight: 600;
-    text-align: left;
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--border);
-  }
+    /* --------------------------------------------------
+       FALLING PARTICLES
+    -------------------------------------------------- */
 
-  #report td {
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-  }
+    .petal {
+      position: fixed;
+      top: -8%;
 
-  #report tr:last-child td { border-bottom: none; }
-  #report tr:hover td { background: #171b24; }
+      z-index: -1;
 
-  .side-panels {
-    width: 340px;
-    flex-shrink: 0;
-    display: none;
-    flex-direction: column;
-    gap: 14px;
-    position: sticky;
-    top: 24px;
-  }
+      width: 5px;
+      height: 5px;
 
-  .side-panels.has-open {
-    display: flex;
-  }
+      background:
+        radial-gradient(
+          circle at 30% 30%,
+          #cfe0ff,
+          #5b8dee
+        );
 
-  .panel {
-    display: none;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
+      border-radius: 9999px;
 
-  .panel h3 {
-    margin-top: 0;
-    font-size: 1rem;
-    color: var(--muted);
-  }
+      box-shadow:
+        0 0 6px 1px rgba(91, 141, 238, 0.6);
 
-  #citations-body {
-    white-space: pre-wrap;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    word-break: break-word;
-  }
+      opacity: 0;
 
-  #citations-body a {
-    color: var(--accent);
-  }
+      pointer-events: none;
 
-  table.ledger-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-  }
+      animation: fall linear infinite;
+    }
 
-  table.ledger-table td, table.ledger-table th {
-    border-bottom: 1px solid var(--border);
-    padding: 6px 6px;
-    text-align: left;
-    word-break: break-all;
-  }
+    @keyframes fall {
+      0% {
+        transform: translateY(-10vh) translateX(0);
+        opacity: 0;
+      }
 
-  .composer-wrap {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    padding: 20px 16px;
-    background: linear-gradient(to top, var(--bg) 60%, transparent);
-    pointer-events: none;
-  }
+      10% {
+        opacity: 0.9;
+      }
 
-  .composer {
-    pointer-events: auto;
-    width: 100%;
-    max-width: 780px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 26px;
-    padding: 10px 10px 10px 20px;
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  }
+      90% {
+        opacity: 0.6;
+      }
 
-  .composer textarea {
-    flex: 1;
-    resize: none;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--text);
-    font-size: 1rem;
-    font-family: inherit;
-    max-height: 160px;
-    min-height: 24px;
-    padding: 8px 0;
-    line-height: 1.4;
-  }
+      100% {
+        transform: translateY(112vh) translateX(24px);
+        opacity: 0;
+      }
+    }
 
-  .send-btn {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none;
-    color: #16130f;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    @keyframes floaty {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
 
-  .send-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
 
-  .send-btn svg {
-    width: 18px;
-    height: 18px;
-  }
+    .floaty {
+      animation: floaty 4s ease-in-out infinite;
+    }
 
-  @media (max-width: 900px) {
-    .content-row { flex-direction: column; }
-    .side-panels { width: 100%; position: static; }
-  }
-</style>
+    @keyframes pulsering {
+      0% {
+        box-shadow: 0 0 0 0 rgba(53, 201, 138, 0.45);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(53, 201, 138, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(53, 201, 138, 0);
+      }
+    }
+
+    .live-dot {
+      animation: pulsering 2.2s infinite;
+    }
+
+    /* --------------------------------------------------
+       SCROLLBAR
+    -------------------------------------------------- */
+
+    ::-webkit-scrollbar {
+      width: 9px;
+      height: 9px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(127, 167, 242, 0.35);
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* --------------------------------------------------
+       CARDS
+    -------------------------------------------------- */
+
+    .card {
+      background: var(--color-panel);
+
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+
+      border: 1px solid var(--color-border);
+
+      border-radius: 28px;
+
+      box-shadow:
+        0 10px 34px -16px rgba(4, 8, 24, 0.55),
+        0 2px 8px -4px rgba(4, 8, 24, 0.4);
+    }
+
+    /* --------------------------------------------------
+       PAGE
+    -------------------------------------------------- */
+
+    .page {
+      max-width: 1180px;
+
+      margin: 0 auto;
+
+      padding:
+        56px
+        24px
+        200px;
+
+      position: relative;
+    }
+
+    /* --------------------------------------------------
+       HEADER
+    -------------------------------------------------- */
+
+    .eyebrow {
+      display: inline-flex;
+
+      align-items: center;
+      gap: 8px;
+
+      padding: 6px 14px;
+
+      font-family: var(--font-jp);
+
+      font-size: 0.72rem;
+
+      letter-spacing: 0.06em;
+
+      text-transform: uppercase;
+
+      color: var(--color-inksoft);
+
+      margin-bottom: 14px;
+
+      border-radius: 999px;
+
+      background: rgba(24, 34, 64, 0.45);
+
+      border: 1px solid rgba(127, 167, 242, 0.12);
+    }
+
+    .eyebrow .dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 9999px;
+
+      background: var(--color-up);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+
+      font-weight: 600;
+
+      font-size: 2rem;
+
+      letter-spacing: -0.01em;
+
+      margin: 0 0 8px;
+
+      color: var(--color-ink);
+    }
+
+    h1 .brush {
+      color: var(--color-sakura);
+
+      font-style: italic;
+
+      font-weight: 500;
+    }
+
+    .subtitle {
+      color: var(--color-inksoft);
+
+      font-size: 0.98rem;
+
+      line-height: 1.55;
+
+      max-width: 680px;
+
+      margin-bottom: 26px;
+    }
+
+    /* --------------------------------------------------
+       TOOLBAR
+    -------------------------------------------------- */
+
+    .toolbar {
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      margin-bottom: 18px;
+    }
+
+    .pill-btn {
+      padding: 9px 18px;
+
+      background: rgba(24, 34, 64, 0.6);
+
+      color: var(--color-inksoft);
+
+      border: 1px solid rgba(127, 167, 242, 0.22);
+
+      border-radius: 9999px;
+
+      font-family: var(--font-body);
+
+      font-weight: 500;
+
+      font-size: 0.85rem;
+
+      cursor: pointer;
+
+      transition:
+        border-color 0.15s ease,
+        color 0.15s ease,
+        background 0.15s ease,
+        transform 0.15s ease;
+
+      box-shadow:
+        0 2px 8px -4px rgba(4, 8, 24, 0.4);
+    }
+
+    .pill-btn:hover:not(:disabled) {
+      border-color: var(--color-sakurasoft);
+
+      color: var(--color-ink);
+
+      background: rgba(32, 44, 80, 0.75);
+
+      transform: translateY(-1px);
+    }
+
+    .pill-btn.active {
+      border-color: var(--color-sakura);
+
+      color: #fff;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--color-sakura),
+          #3a63c2
+        );
+    }
+
+    .pill-btn:disabled {
+      opacity: 0.4;
+
+      cursor: not-allowed;
+    }
+
+    /* --------------------------------------------------
+       STATUS
+    -------------------------------------------------- */
+
+    .status {
+      color: var(--color-inksoft);
+
+      margin-bottom: 20px;
+
+      font-size: 0.9rem;
+
+      min-height: 1.2em;
+
+      font-family: var(--font-jp);
+
+      transition: opacity 0.2s ease;
+    }
+
+    /* --------------------------------------------------
+       CONTENT
+    -------------------------------------------------- */
+
+    .content-row {
+      display: flex;
+
+      align-items: flex-start;
+
+      gap: 20px;
+    }
+
+    /* --------------------------------------------------
+       REPORT
+    -------------------------------------------------- */
+
+    #report {
+      flex: 1;
+
+      min-width: 0;
+
+      padding: 30px 34px;
+
+      display: none;
+
+      line-height: 1.65;
+
+      font-size: 0.97rem;
+
+      color: var(--color-ink);
+    }
+
+    #report h1,
+    #report h2,
+    #report h3 {
+      font-family: var(--font-display);
+
+      font-weight: 600;
+
+      color: var(--color-ink);
+
+      margin: 1.3em 0 0.55em;
+
+      line-height: 1.3;
+    }
+
+    #report h1 {
+      font-size: 1.5rem;
+
+      border-bottom:
+        2px solid
+        var(--color-sakurasoft);
+
+      padding-bottom: 0.4em;
+    }
+
+    #report h2 {
+      font-size: 1.2rem;
+
+      color: var(--color-sakura);
+    }
+
+    #report h3 {
+      font-size: 1.02rem;
+
+      color: var(--color-lav);
+
+      font-family: var(--font-jp);
+
+      font-weight: 500;
+    }
+
+    #report p {
+      margin: 0.85em 0;
+    }
+
+    #report strong {
+      color: var(--color-ink);
+
+      font-weight: 700;
+    }
+
+    #report ul,
+    #report ol {
+      margin: 0.6em 0;
+
+      padding-left: 1.4em;
+    }
+
+    #report li {
+      margin: 0.35em 0;
+    }
+
+    #report li::marker {
+      color: var(--color-sakura);
+    }
+
+    #report hr {
+      border: none;
+
+      border-top:
+        1px dashed
+        var(--color-sakurasoft);
+
+      margin: 1.7em 0;
+    }
+
+    #report code {
+      background: #101a33;
+
+      color: var(--color-gold);
+
+      padding: 2px 6px;
+
+      border-radius: 6px;
+
+      font-size: 0.88em;
+    }
+
+    #report pre {
+      background: #0a1124;
+
+      border:
+        1px solid
+        rgba(127, 167, 242, 0.15);
+
+      padding: 14px 16px;
+
+      border-radius: 12px;
+
+      overflow-x: auto;
+    }
+
+    #report pre code {
+      background: transparent;
+
+      padding: 0;
+
+      color: var(--color-ink);
+    }
+
+    #report a {
+      color: var(--color-lav);
+
+      text-decoration: none;
+
+      border-bottom:
+        1px dotted
+        var(--color-lavsoft);
+    }
+
+    #report a:hover {
+      color: var(--color-sakura);
+    }
+
+    #report blockquote {
+      margin: 1em 0;
+
+      padding: 10px 16px;
+
+      border-left:
+        3px solid
+        var(--color-sakura);
+
+      color: var(--color-inksoft);
+
+      background:
+        rgba(91, 141, 238, 0.06);
+    }
+
+    /* --------------------------------------------------
+       REPORT TABLE
+    -------------------------------------------------- */
+
+    #report table {
+      width: 100%;
+
+      border-collapse: collapse;
+
+      margin: 1em 0 1.5em;
+
+      font-size: 0.88rem;
+
+      overflow: hidden;
+
+      border-radius: 14px;
+
+      border:
+        1px solid
+        rgba(127, 167, 242, 0.2);
+
+      box-shadow:
+        0 4px 16px -10px
+        rgba(4, 8, 24, 0.5);
+    }
+
+    #report th {
+      background: #101a33;
+
+      color: var(--color-ink);
+
+      font-family: var(--font-jp);
+
+      font-weight: 700;
+
+      text-align: left;
+
+      padding: 10px 14px;
+
+      border-bottom:
+        1px solid
+        var(--color-sakurasoft);
+    }
+
+    #report td {
+      padding: 10px 14px;
+
+      border-bottom:
+        1px solid
+        rgba(127, 167, 242, 0.14);
+
+      vertical-align: top;
+
+      background:
+        rgba(127, 167, 242, 0.04);
+    }
+
+    #report tr:last-child td {
+      border-bottom: none;
+    }
+
+    #report tr:hover td {
+      background:
+        rgba(91, 141, 238, 0.12);
+    }
+
+    /* --------------------------------------------------
+       SIDE PANELS
+    -------------------------------------------------- */
+
+    .side-panels {
+      width: 340px;
+
+      flex-shrink: 0;
+
+      display: none;
+
+      flex-direction: column;
+
+      gap: 14px;
+
+      position: sticky;
+
+      top: 24px;
+    }
+
+    .side-panels.has-open {
+      display: flex;
+    }
+
+    .panel {
+      display: none;
+
+      padding: 18px 20px;
+
+      max-height: 70vh;
+
+      overflow-y: auto;
+    }
+
+    .panel h3 {
+      margin-top: 0;
+
+      font-family: var(--font-jp);
+
+      font-size: 0.95rem;
+
+      font-weight: 700;
+
+      color: var(--color-lav);
+    }
+
+    #citations-body {
+      white-space: pre-wrap;
+
+      font-size: 0.85rem;
+
+      line-height: 1.65;
+
+      word-break: break-word;
+
+      color: var(--color-inksoft);
+    }
+
+    #citations-body a {
+      color: var(--color-sakura);
+    }
+
+    /* --------------------------------------------------
+       PAYMENT LEDGER
+    -------------------------------------------------- */
+
+    table.ledger-table {
+      width: 100%;
+
+      border-collapse: collapse;
+
+      font-size: 0.78rem;
+    }
+
+    table.ledger-table th {
+      font-family: var(--font-jp);
+
+      color: var(--color-lav);
+
+      text-align: left;
+
+      padding: 6px;
+
+      border-bottom:
+        1px solid
+        var(--color-lavsoft);
+    }
+
+    table.ledger-table td {
+      border-bottom:
+        1px solid
+        rgba(127, 167, 242, 0.14);
+
+      padding: 7px 6px;
+
+      text-align: left;
+
+      word-break: break-all;
+
+      color: var(--color-ink);
+    }
+
+    table.ledger-table td:nth-child(3) {
+      color: var(--color-upink);
+
+      font-weight: 600;
+    }
+
+    /* --------------------------------------------------
+       COMPOSER
+    -------------------------------------------------- */
+
+    .composer-wrap {
+      position: fixed;
+
+      bottom: 0;
+
+      left: 0;
+
+      right: 0;
+
+      display: flex;
+
+      justify-content: center;
+
+      padding:
+        22px
+        16px;
+
+      background:
+        linear-gradient(
+          to top,
+          #060a17 55%,
+          rgba(6, 10, 23, 0)
+        );
+
+      pointer-events: none;
+
+      z-index: 20;
+    }
+
+    .composer {
+      pointer-events: auto;
+
+      width: 100%;
+
+      max-width: 780px;
+
+      background:
+        rgba(16, 24, 48, 0.88);
+
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+
+      border:
+        1px solid
+        rgba(127, 167, 242, 0.2);
+
+      border-radius: 26px;
+
+      padding:
+        10px
+        10px
+        10px
+        22px;
+
+      display: flex;
+
+      align-items: flex-end;
+
+      gap: 10px;
+
+      box-shadow:
+        0 10px 34px -14px
+        rgba(4, 8, 24, 0.6);
+    }
+
+    .composer textarea {
+      flex: 1;
+
+      resize: none;
+
+      border: none;
+
+      outline: none;
+
+      background: transparent;
+
+      color: var(--color-ink);
+
+      font-size: 1rem;
+
+      font-family: var(--font-body);
+
+      max-height: 160px;
+
+      min-height: 24px;
+
+      padding: 8px 0;
+
+      line-height: 1.4;
+    }
+
+    .composer textarea::placeholder {
+      color: var(--color-inksoft);
+
+      opacity: 0.65;
+    }
+
+    /* --------------------------------------------------
+       SEND BUTTON
+    -------------------------------------------------- */
+
+    .send-btn {
+      flex-shrink: 0;
+
+      width: 42px;
+
+      height: 42px;
+
+      border-radius: 50%;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--color-sakura),
+          #3a63c2
+        );
+
+      border: none;
+
+      color: #fff;
+
+      cursor: pointer;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      box-shadow:
+        0 4px 14px -4px
+        rgba(91, 141, 238, 0.6);
+
+      transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+    }
+
+    .send-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .send-btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+
+      cursor: not-allowed;
+    }
+
+    .send-btn svg {
+      width: 18px;
+
+      height: 18px;
+    }
+
+    /* --------------------------------------------------
+       RESPONSIVE
+    -------------------------------------------------- */
+
+    @media (max-width: 900px) {
+      .content-row {
+        flex-direction: column;
+      }
+
+      .side-panels {
+        width: 100%;
+
+        position: static;
+      }
+
+      #report {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        padding:
+          36px
+          16px
+          170px;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+      }
+
+      #report {
+        padding:
+          22px
+          20px;
+
+        border-radius: 22px;
+      }
+
+      .composer {
+        border-radius: 22px;
+
+        padding-left: 16px;
+      }
+
+      .toolbar {
+        gap: 8px;
+      }
+
+      .pill-btn {
+        padding:
+          8px
+          14px;
+      }
+    }
+  </style>
 </head>
-
 
 <body>
 
-<div class="page">
+  <!-- Background -->
+  <div class="sky"></div>
+  <div class="sun"></div>
 
-  <h1>🔎 x402 Multi-Step Research Agent</h1>
+  <!-- Main page -->
+  <div class="page">
 
-  <p class="subtitle">
-    Ask a question. The orchestrator decomposes it, autonomously pays 5 x402-enabled services per sub-question, and returns one cited report.
-  </p>
+    <!-- Header -->
+    <div class="eyebrow">
+      <span class="dot live-dot"></span>
+      x402 · autonomous agent payments
+    </div>
 
-  <div class="toolbar">
-    <button class="pill-btn" id="toggle-citations" disabled>View citations</button>
-    <button class="pill-btn" id="toggle-payments" disabled>View x402 payments</button>
-  </div>
+    <h1>
+      Research
+      <span class="brush">Orchestrator</span>
+    </h1>
 
-  <div class="status" id="status"></div>
+    <p class="subtitle">
+      Ask a question. The orchestrator decomposes it, autonomously pays
+      x402-enabled research services for each sub-question, and returns
+      one cited report.
+    </p>
 
-  <div class="content-row">
+    <!-- Toolbar -->
+    <div class="toolbar">
 
-    <div id="report"></div>
+      <button
+        class="pill-btn"
+        id="toggle-citations"
+        disabled
+      >
+        View citations
+      </button>
 
-    <div class="side-panels" id="side-panels">
+      <button
+        class="pill-btn"
+        id="toggle-payments"
+        disabled
+      >
+        View x402 payments
+      </button>
 
-      <div class="panel" id="citations-panel">
-        <h3>Citations</h3>
-        <div id="citations-body"></div>
-      </div>
+    </div>
 
-      <div class="panel" id="payments-panel">
-        <h3>Autonomous payment ledger</h3>
-        <table class="ledger-table" id="ledger">
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Tx</th>
-              <th>USDC</th>
-              <th>Net</th>
-            </tr>
-          </thead>
-          <tbody id="ledger-body"></tbody>
-        </table>
+    <!-- Status -->
+    <div
+      class="status"
+      id="status"
+      aria-live="polite"
+    ></div>
+
+    <!-- Content -->
+    <div class="content-row">
+
+      <!-- Report -->
+      <div
+        id="report"
+        class="card"
+      ></div>
+
+      <!-- Side panels -->
+      <div
+        class="side-panels"
+        id="side-panels"
+      >
+
+        <!-- Citations -->
+        <div
+          class="panel card"
+          id="citations-panel"
+        >
+
+          <h3>Citations</h3>
+
+          <div id="citations-body"></div>
+
+        </div>
+
+        <!-- Payments -->
+        <div
+          class="panel card"
+          id="payments-panel"
+        >
+
+          <h3>Autonomous payment ledger</h3>
+
+          <table
+            class="ledger-table"
+            id="ledger"
+          >
+
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Tx</th>
+                <th>USDC</th>
+                <th>Net</th>
+              </tr>
+            </thead>
+
+            <tbody id="ledger-body"></tbody>
+
+          </table>
+
+        </div>
+
       </div>
 
     </div>
 
   </div>
 
-</div>
+  <!-- Query composer -->
+  <div class="composer-wrap">
 
+    <div class="composer floaty">
 
-<div class="composer-wrap">
-  <div class="composer">
-    <textarea
-      id="query"
-      rows="1"
-      placeholder="e.g. Compare the top 3 open-weight LLMs released this year for on-device inference"
-    ></textarea>
-    <button class="send-btn" id="go" title="Send">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
+      <textarea
+        id="query"
+        rows="1"
+        placeholder="Ask anything you want researched..."
+        autocomplete="off"
+      ></textarea>
+
+      <button
+        class="send-btn"
+        id="go"
+        title="Send"
+        aria-label="Send research query"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+
+          <path
+            d="M12 19V5M12 5L5 12M12 5L19 12"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+        </svg>
+
+      </button>
+
+    </div>
+
   </div>
-</div>
+
+  <script>
+    /* --------------------------------------------------
+       BACKGROUND PARTICLES
+    -------------------------------------------------- */
+
+    (function spawnPetals() {
+      const count = 14;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement("div");
+
+        p.className = "petal";
+
+        p.style.left =
+          Math.random() * 100 + "vw";
+
+        p.style.animationDuration =
+          9 + Math.random() * 8 + "s";
+
+        p.style.animationDelay =
+          Math.random() * 10 + "s";
+
+        p.style.opacity =
+          String(0.5 + Math.random() * 0.4);
+
+        p.style.transform =
+          `scale(${(0.6 + Math.random() * 0.8).toFixed(2)})`;
+
+        document.body.appendChild(p);
+      }
+    })();
+  </script>
+
+  <script>
+    /* --------------------------------------------------
+       ELEMENTS
+    -------------------------------------------------- */
+
+    const btn =
+      document.getElementById("go");
+
+    const queryEl =
+      document.getElementById("query");
+
+    const statusEl =
+      document.getElementById("status");
+
+    const reportEl =
+      document.getElementById("report");
+
+    const citationsToggle =
+      document.getElementById("toggle-citations");
+
+    const paymentsToggle =
+      document.getElementById("toggle-payments");
+
+    const sidePanels =
+      document.getElementById("side-panels");
+
+    const citationsPanel =
+      document.getElementById("citations-panel");
+
+    const paymentsPanel =
+      document.getElementById("payments-panel");
+
+    const citationsBody =
+      document.getElementById("citations-body");
+
+    const ledgerBody =
+      document.getElementById("ledger-body");
 
 
-<script>
+    /* --------------------------------------------------
+       MARKDOWN
+    -------------------------------------------------- */
 
-const btn = document.getElementById('go');
-const queryEl = document.getElementById('query');
-const statusEl = document.getElementById('status');
-const reportEl = document.getElementById('report');
-
-const citationsToggle = document.getElementById('toggle-citations');
-const paymentsToggle = document.getElementById('toggle-payments');
-const sidePanels = document.getElementById('side-panels');
-const citationsPanel = document.getElementById('citations-panel');
-const paymentsPanel = document.getElementById('payments-panel');
-const citationsBody = document.getElementById('citations-body');
-const ledgerBody = document.getElementById('ledger-body');
-
-marked.setOptions({ breaks: false, gfm: true });
+    marked.setOptions({
+      breaks: false,
+      gfm: true
+    });
 
 
-queryEl.addEventListener('input', () => {
-  queryEl.style.height = 'auto';
-  queryEl.style.height = Math.min(queryEl.scrollHeight, 160) + 'px';
-});
+    /* --------------------------------------------------
+       TEXTAREA
+    -------------------------------------------------- */
 
-queryEl.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    btn.click();
-  }
-});
+    queryEl.addEventListener("input", () => {
 
-function refreshSidePanelsVisibility() {
-  const anyOpen =
-    citationsPanel.style.display === 'block' ||
-    paymentsPanel.style.display === 'block';
-  sidePanels.classList.toggle('has-open', anyOpen);
-}
+      queryEl.style.height = "auto";
 
-citationsToggle.addEventListener('click', () => {
-  const isOpen = citationsPanel.style.display === 'block';
-  citationsPanel.style.display = isOpen ? 'none' : 'block';
-  citationsToggle.classList.toggle('active', !isOpen);
-  refreshSidePanelsVisibility();
-});
+      queryEl.style.height =
+        Math.min(
+          queryEl.scrollHeight,
+          160
+        ) + "px";
 
-paymentsToggle.addEventListener('click', () => {
-  const isOpen = paymentsPanel.style.display === 'block';
-  paymentsPanel.style.display = isOpen ? 'none' : 'block';
-  paymentsToggle.classList.toggle('active', !isOpen);
-  refreshSidePanelsVisibility();
-});
+    });
 
 
-// Splits the report into: main body / sources block, discarding any
-// echoed ledger text (the real ledger comes from data.payments).
-function splitSections(markdown) {
-  const sourcesIdx = markdown.search(/\*\*Sources\*\*/i);
-  const ledgerIdx = markdown.search(/\*\*Autonomous Payment Ledger\*\*/i);
+    queryEl.addEventListener("keydown", (e) => {
 
-  if (sourcesIdx === -1) {
-    return { body: markdown.trim(), sources: null };
-  }
+      if (
+        e.key === "Enter" &&
+        !e.shiftKey
+      ) {
 
-  const sourcesEnd =
-    ledgerIdx !== -1 && ledgerIdx > sourcesIdx ? ledgerIdx : markdown.length;
+        e.preventDefault();
 
-  const sources = markdown
-    .slice(sourcesIdx, sourcesEnd)
-    .replace(/\*\*Sources\*\*/i, '')
-    .replace(/^-+\s*$/m, '')
-    .trim();
+        btn.click();
 
-  const body = markdown.slice(0, sourcesIdx).trim();
+      }
 
-  return { body, sources };
-}
-
-function linkify(text) {
-  return text.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener">$1</a>'
-  );
-}
+    });
 
 
-btn.addEventListener('click', async () => {
+    /* --------------------------------------------------
+       SIDE PANELS
+    -------------------------------------------------- */
 
-  const query = queryEl.value.trim();
-  if (!query) return;
+    function refreshSidePanelsVisibility() {
 
-  btn.disabled = true;
-  queryEl.disabled = true;
+      const anyOpen =
+        citationsPanel.style.display === "block" ||
+        paymentsPanel.style.display === "block";
 
-  statusEl.textContent = 'Planning, researching, and paying vendors autonomously… this can take 30-90s.';
+      sidePanels.classList.toggle(
+        "has-open",
+        anyOpen
+      );
 
-  reportEl.style.display = 'none';
-  citationsPanel.style.display = 'none';
-  paymentsPanel.style.display = 'none';
-  citationsToggle.classList.remove('active');
-  paymentsToggle.classList.remove('active');
-  citationsToggle.disabled = true;
-  paymentsToggle.disabled = true;
-  refreshSidePanelsVisibility();
-
-  try {
-
-    const res = await fetch('/research', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
-  });
-
-  const text = await res.text();
-
-  let data;
-
-  try {
-    data = JSON.parse(text);
-  } catch (err) {
-    console.error("Backend returned non-JSON:", text);
-    throw new Error(
-      `Backend returned ${res.status} instead of JSON`
-    );
-  }
-
-  if (!res.ok) {
-    throw new Error(
-      data.detail || `Backend error: ${res.status}`
-    );
-  }
-
-  const { body, sources } = splitSections(data.report_markdown);
-
-    reportEl.innerHTML = marked.parse(body);
-    reportEl.style.display = 'block';
-
-    if (sources) {
-      citationsBody.innerHTML = linkify(sources);
-      citationsToggle.disabled = false;
     }
 
-    ledgerBody.innerHTML = '';
-    for (const p of data.payments.payments) {
-      const row = document.createElement('tr');
-      row.innerHTML =
-        `<td>${p.service}</td>
-         <td>${p.tx}</td>
-         <td>$${p.amount_usdc.toFixed(4)}</td>
-         <td>${p.network}</td>`;
-      ledgerBody.appendChild(row);
+
+    citationsToggle.addEventListener(
+      "click",
+      () => {
+
+        const isOpen =
+          citationsPanel.style.display === "block";
+
+        citationsPanel.style.display =
+          isOpen ? "none" : "block";
+
+        citationsToggle.classList.toggle(
+          "active",
+          !isOpen
+        );
+
+        refreshSidePanelsVisibility();
+
+      }
+    );
+
+
+    paymentsToggle.addEventListener(
+      "click",
+      () => {
+
+        const isOpen =
+          paymentsPanel.style.display === "block";
+
+        paymentsPanel.style.display =
+          isOpen ? "none" : "block";
+
+        paymentsToggle.classList.toggle(
+          "active",
+          !isOpen
+        );
+
+        refreshSidePanelsVisibility();
+
+      }
+    );
+
+
+    /* --------------------------------------------------
+       SPLIT REPORT
+    -------------------------------------------------- */
+
+    function splitSections(markdown) {
+
+      if (!markdown) {
+        return {
+          body: "",
+          sources: null
+        };
+      }
+
+      const sourcesIdx =
+        markdown.search(
+          /\*\*Sources\*\*/i
+        );
+
+      const ledgerIdx =
+        markdown.search(
+          /\*\*Autonomous Payment Ledger\*\*/i
+        );
+
+      if (sourcesIdx === -1) {
+
+        return {
+          body: markdown.trim(),
+          sources: null
+        };
+
+      }
+
+      const sourcesEnd =
+        ledgerIdx !== -1 &&
+        ledgerIdx > sourcesIdx
+          ? ledgerIdx
+          : markdown.length;
+
+      const sources =
+        markdown
+          .slice(
+            sourcesIdx,
+            sourcesEnd
+          )
+          .replace(
+            /\*\*Sources\*\*/i,
+            ""
+          )
+          .replace(
+            /^-+\s*\*$/m,
+            ""
+          )
+          .trim();
+
+      const body =
+        markdown
+          .slice(0, sourcesIdx)
+          .trim();
+
+      return {
+        body,
+        sources
+      };
+
     }
-    paymentsToggle.disabled = false;
 
-    statusEl.textContent =
-      `Done — ${data.payments.count} autonomous x402 payments, $${data.payments.total_usdc.toFixed(4)} USDC total.`;
 
-  } catch (e) {
+    /* --------------------------------------------------
+       LINKIFY CITATIONS
+    -------------------------------------------------- */
 
-    statusEl.textContent = 'Error: ' + e.message;
+    function linkify(text) {
 
-  } finally {
+      return text.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
 
-    btn.disabled = false;
-    queryEl.disabled = false;
-    queryEl.value = '';
-    queryEl.style.height = 'auto';
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
 
-  }
+    }
 
-});
 
-</script>
+    /* --------------------------------------------------
+       RESET UI
+    -------------------------------------------------- */
+
+    function resetPanels() {
+
+      reportEl.style.display = "none";
+
+      citationsPanel.style.display =
+        "none";
+
+      paymentsPanel.style.display =
+        "none";
+
+      citationsToggle.classList.remove(
+        "active"
+      );
+
+      paymentsToggle.classList.remove(
+        "active"
+      );
+
+      citationsToggle.disabled = true;
+
+      paymentsToggle.disabled = true;
+
+      citationsBody.innerHTML = "";
+
+      ledgerBody.innerHTML = "";
+
+      refreshSidePanelsVisibility();
+
+    }
+
+
+    /* --------------------------------------------------
+       RESEARCH
+    -------------------------------------------------- */
+
+    btn.addEventListener(
+      "click",
+      async () => {
+
+        const query =
+          queryEl.value.trim();
+
+        if (!query) {
+          return;
+        }
+
+
+        /* Disable input */
+
+        btn.disabled = true;
+
+        queryEl.disabled = true;
+
+
+        /* Reset */
+
+        resetPanels();
+
+
+        /* Status */
+
+        statusEl.textContent =
+          "Planning, researching, and paying vendors autonomously… this can take 30–90s.";
+
+
+        try {
+
+          /*
+           * IMPORTANT:
+           * Use a relative URL so the same frontend
+           * works locally and on Railway.
+           */
+
+          const res =
+            await fetch(
+              "/research",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+                  query: query
+                })
+              }
+            );
+
+
+          /*
+           * Read as text first.
+           * This prevents JSON.parse errors from
+           * hiding useful backend errors.
+           */
+
+          const text =
+            await res.text();
+
+
+          let data;
+
+
+          try {
+
+            data =
+              JSON.parse(text);
+
+          } catch (err) {
+
+            console.error(
+              "Backend returned non-JSON:",
+              text
+            );
+
+            throw new Error(
+              `Backend returned ${res.status} instead of JSON`
+            );
+
+          }
+
+
+          /*
+           * Handle HTTP errors.
+           */
+
+          if (!res.ok) {
+
+            throw new Error(
+              data.detail ||
+              data.message ||
+              `Backend error: ${res.status}`
+            );
+
+          }
+
+
+          /*
+           * Validate expected response.
+           */
+
+          if (
+            !data.report_markdown
+          ) {
+
+            throw new Error(
+              "Backend response did not contain report_markdown"
+            );
+
+          }
+
+
+          /*
+           * Render report.
+           */
+
+          const {
+            body,
+            sources
+          } =
+            splitSections(
+              data.report_markdown
+            );
+
+
+          reportEl.innerHTML =
+            marked.parse(body);
+
+
+          reportEl.style.display =
+            "block";
+
+
+          /*
+           * Citations.
+           */
+
+          if (sources) {
+
+            citationsBody.innerHTML =
+              linkify(sources);
+
+            citationsToggle.disabled =
+              false;
+
+          }
+
+
+          /*
+           * Payments.
+           */
+
+          if (
+            data.payments &&
+            Array.isArray(
+              data.payments.payments
+            )
+          ) {
+
+            ledgerBody.innerHTML =
+              "";
+
+            for (
+              const p
+              of data.payments.payments
+            ) {
+
+              const row =
+                document.createElement(
+                  "tr"
+                );
+
+
+              const serviceCell =
+                document.createElement(
+                  "td"
+                );
+
+              serviceCell.textContent =
+                p.service ?? "Unknown";
+
+
+              const txCell =
+                document.createElement(
+                  "td"
+                );
+
+              txCell.textContent =
+                p.tx ?? "N/A";
+
+
+              const amountCell =
+                document.createElement(
+                  "td"
+                );
+
+              const amount =
+                Number(
+                  p.amount_usdc
+                );
+
+              amountCell.textContent =
+                Number.isFinite(amount)
+                  ? `$${amount.toFixed(4)}`
+                  : "$0.0000";
+
+
+              const networkCell =
+                document.createElement(
+                  "td"
+                );
+
+              networkCell.textContent =
+                p.network ?? "N/A";
+
+
+              row.appendChild(
+                serviceCell
+              );
+
+              row.appendChild(
+                txCell
+              );
+
+              row.appendChild(
+                amountCell
+              );
+
+              row.appendChild(
+                networkCell
+              );
+
+
+              ledgerBody.appendChild(
+                row
+              );
+
+            }
+
+
+            paymentsToggle.disabled =
+              false;
+
+
+            const count =
+              Number(
+                data.payments.count
+              ) || 0;
+
+            const total =
+              Number(
+                data.payments.total_usdc
+              ) || 0;
+
+
+            statusEl.textContent =
+              `Done — ${count} autonomous x402 payments, $${total.toFixed(4)} USDC total.`;
+
+          } else {
+
+            statusEl.textContent =
+              "Research complete.";
+
+          }
+
+
+          /*
+           * Scroll the report into view
+           * on smaller screens.
+           */
+
+          if (
+            window.innerWidth <= 900
+          ) {
+
+            reportEl.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+          }
+
+
+        } catch (e) {
+
+          console.error(
+            "Research request failed:",
+            e
+          );
+
+
+          statusEl.textContent =
+            "Error: " +
+            (
+              e?.message ||
+              "Something went wrong."
+            );
+
+
+        } finally {
+
+          /*
+           * Re-enable UI.
+           */
+
+          btn.disabled = false;
+
+          queryEl.disabled = false;
+
+          queryEl.value = "";
+
+          queryEl.style.height =
+            "auto";
+
+          queryEl.focus();
+
+        }
+
+      }
+    );
+  </script>
 
 </body>
 </html>

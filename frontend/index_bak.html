@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>x402 Research Orchestrator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #14171f;
+    --border: #2a2f3a;
+    --text: #e6e6e6;
+    --muted: #9aa;
+    --accent: #d97757;
+    --accent-dim: #8a4f37;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 24px 180px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .pill-btn {
+    padding: 7px 14px;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .pill-btn:hover:not(:disabled) {
+    border-color: var(--accent-dim);
+  }
+
+  .pill-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .pill-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .status {
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    min-height: 1.2em;
+  }
+
+  .content-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  /* rendered report styling */
+  #report {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel);
+    padding: 22px 26px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    display: none;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  #report h1, #report h2, #report h3 {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.4em 0 0.6em;
+    line-height: 1.3;
+  }
+
+  #report h1 { font-size: 1.35rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4em; }
+  #report h2 { font-size: 1.15rem; color: var(--accent); }
+  #report h3 { font-size: 1.02rem; color: var(--muted); }
+
+  #report p { margin: 0.8em 0; }
+
+  #report strong { color: #fff; font-weight: 600; }
+
+  #report ul, #report ol {
+    margin: 0.6em 0;
+    padding-left: 1.4em;
+  }
+
+  #report li { margin: 0.3em 0; }
+
+  #report hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.6em 0;
+  }
+
+  #report code {
+    background: #1d212b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  #report a { color: var(--accent); text-decoration: none; }
+  #report a:hover { text-decoration: underline; }
+
+  #report table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0 1.4em;
+    font-size: 0.88rem;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  #report th {
+    background: #1a1e28;
+    color: var(--accent);
+    font-weight: 600;
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #report td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  #report tr:last-child td { border-bottom: none; }
+  #report tr:hover td { background: #171b24; }
+
+  .side-panels {
+    width: 340px;
+    flex-shrink: 0;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .side-panels.has-open {
+    display: flex;
+  }
+
+  .panel {
+    display: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .panel h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: var(--muted);
+  }
+
+  #citations-body {
+    white-space: pre-wrap;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  #citations-body a {
+    color: var(--accent);
+  }
+
+  table.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+
+  table.ledger-table td, table.ledger-table th {
+    border-bottom: 1px solid var(--border);
+    padding: 6px 6px;
+    text-align: left;
+    word-break: break-all;
+  }
+
+  .composer-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px 16px;
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    pointer-events: none;
+  }
+
+  .composer {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 780px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    padding: 10px 10px 10px 20px;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+
+  .composer textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+    max-height: 160px;
+    min-height: 24px;
+    padding: 8px 0;
+    line-height: 1.4;
+  }
+
+  .send-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: #16130f;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .send-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (max-width: 900px) {
+    .content-row { flex-direction: column; }
+    .side-panels { width: 100%; position: static; }
+  }
+</style>
+</head>
+
+
+<body>
+
+<div class="page">
+
+  <h1>🔎 x402 Multi-Step Research Agent</h1>
+
+  <p class="subtitle">
+    Ask a question. The orchestrator decomposes it, autonomously pays 5 x402-enabled services per sub-question, and returns one cited report.
+  </p>
+
+  <div class="toolbar">
+    <button class="pill-btn" id="toggle-citations" disabled>View citations</button>
+    <button class="pill-btn" id="toggle-payments" disabled>View x402 payments</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="content-row">
+
+    <div id="report"></div>
+
+    <div class="side-panels" id="side-panels">
+
+      <div class="panel" id="citations-panel">
+        <h3>Citations</h3>
+        <div id="citations-body"></div>
+      </div>
+
+      <div class="panel" id="payments-panel">
+        <h3>Autonomous payment ledger</h3>
+        <table class="ledger-table" id="ledger">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Tx</th>
+              <th>USDC</th>
+              <th>Net</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-body"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="composer-wrap">
+  <div class="composer">
+    <textarea
+      id="query"
+      rows="1"
+      placeholder="e.g. Compare the top 3 open-weight LLMs released this year for on-device inference"
+    ></textarea>
+    <button class="send-btn" id="go" title="Send">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+
+<script>
+
+const btn = document.getElementById('go');
+const queryEl = document.getElementById('query');
+const statusEl = document.getElementById('status');
+const reportEl = document.getElementById('report');
+
+const citationsToggle = document.getElementById('toggle-citations');
+const paymentsToggle = document.getElementById('toggle-payments');
+const sidePanels = document.getElementById('side-panels');
+const citationsPanel = document.getElementById('citations-panel');
+const paymentsPanel = document.getElementById('payments-panel');
+const citationsBody = document.getElementById('citations-body');
+const ledgerBody = document.getElementById('ledger-body');
+
+marked.setOptions({ breaks: false, gfm: true });
+
+
+queryEl.addEventListener('input', () => {
+  queryEl.style.height = 'auto';
+  queryEl.style.height = Math.min(queryEl.scrollHeight, 160) + 'px';
+});
+
+queryEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    btn.click();
+  }
+});
+
+function refreshSidePanelsVisibility() {
+  const anyOpen =
+    citationsPanel.style.display === 'block' ||
+    paymentsPanel.style.display === 'block';
+  sidePanels.classList.toggle('has-open', anyOpen);
+}
+
+citationsToggle.addEventListener('click', () => {
+  const isOpen = citationsPanel.style.display === 'block';
+  citationsPanel.style.display = isOpen ? 'none' : 'block';
+  citationsToggle.classList.toggle('active', !isOpen);
+  refreshSidePanelsVisibility();
+});
+
+paymentsToggle.addEventListener('click', () => {
+  const isOpen = paymentsPanel.style.display === 'block';
+  paymentsPanel.style.display = isOpen ? 'none' : 'block';
+  paymentsToggle.classList.toggle('active', !isOpen);
+  refreshSidePanelsVisibility();
+});
+
+
+// Splits the report into: main body / sources block, discarding any
+// echoed ledger text (the real ledger comes from data.payments).
+function splitSections(markdown) {
+  const sourcesIdx = markdown.search(/\*\*Sources\*\*/i);
+  const ledgerIdx = markdown.search(/\*\*Autonomous Payment Ledger\*\*/i);
+
+  if (sourcesIdx === -1) {
+    return { body: markdown.trim(), sources: null };
+  }
+
+  const sourcesEnd =
+    ledgerIdx !== -1 && ledgerIdx > sourcesIdx ? ledgerIdx : markdown.length;
+
+  const sources = markdown
+    .slice(sourcesIdx, sourcesEnd)
+    .replace(/\*\*Sources\*\*/i, '')
+    .replace(/^-+\s*$/m, '')
+    .trim();
+
+  const body = markdown.slice(0, sourcesIdx).trim();
+
+  return { body, sources };
+}
+
+function linkify(text) {
+  return text.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener">$1</a>'
+  );
+}
+
+
+btn.addEventListener('click', async () => {
+
+  const query = queryEl.value.trim();
+  if (!query) return;
+
+  btn.disabled = true;
+  queryEl.disabled = true;
+
+  statusEl.textContent = 'Planning, researching, and paying vendors autonomously… this can take 30-90s.';
+
+  reportEl.style.display = 'none';
+  citationsPanel.style.display = 'none';
+  paymentsPanel.style.display = 'none';
+  citationsToggle.classList.remove('active');
+  paymentsToggle.classList.remove('active');
+  citationsToggle.disabled = true;
+  paymentsToggle.disabled = true;
+  refreshSidePanelsVisibility();
+
+  try {
+
+    const res = await fetch('/research', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+  });
+
+  const text = await res.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    console.error("Backend returned non-JSON:", text);
+    throw new Error(
+      `Backend returned ${res.status} instead of JSON`
+    );
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      data.detail || `Backend error: ${res.status}`
+    );
+  }
+
+  const { body, sources } = splitSections(data.report_markdown);
+
+    reportEl.innerHTML = marked.parse(body);
+    reportEl.style.display = 'block';
+
+    if (sources) {
+      citationsBody.innerHTML = linkify(sources);
+      citationsToggle.disabled = false;
+    }
+
+    ledgerBody.innerHTML = '';
+    for (const p of data.payments.payments) {
+      const row = document.createElement('tr');
+      row.innerHTML =
+        `<td>${p.service}</td>
+         <td>${p.tx}</td>
+         <td>$${p.amount_usdc.toFixed(4)}</td>
+         <td>${p.network}</td>`;
+      ledgerBody.appendChild(row);
+    }
+    paymentsToggle.disabled = false;
+
+    statusEl.textContent =
+      `Done — ${data.payments.count} autonomous x402 payments, $${data.payments.total_usdc.toFixed(4)} USDC total.`;
+
+  } catch (e) {
+
+    statusEl.textContent = 'Error: ' + e.message;
+
+  } finally {
+
+    btn.disabled = false;
+    queryEl.disabled = false;
+    queryEl.value = '';
+    queryEl.style.height = 'auto';
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
