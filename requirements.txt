@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+httpx
+requests
+pydantic
+python-dotenv
+langgraph
+langchain
+langchain-groq
+groq
+tavily-python
+tenacity
+eth-account
+opentelemetry-api
+opentelemetry-sdk
