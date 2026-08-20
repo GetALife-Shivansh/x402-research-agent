@@ -78,9 +78,10 @@ else:
 
 def _sign_payment(requirements: dict) -> dict:
 
-    network = requirements["network"]
+    network = requirements.get("network", "algorand-testnet")
+    asset_str = str(requirements.get("asset", "0"))
 
-    if "algorand" in network.lower():
+    if "algorand" in network.lower() or not asset_str.startswith("0x"):
         value = int(requirements["maxAmountRequired"])
         asset_val = requirements.get("asset", "31566704")
         asset_id = int(asset_val) if str(asset_val).isdigit() else asset_val
@@ -123,6 +124,10 @@ def _sign_payment(requirements: dict) -> dict:
         requirements["maxAmountRequired"]
     )
 
+    verifying_contract = requirements.get("asset", "0x0000000000000000000000000000000000000000")
+    if not str(verifying_contract).startswith("0x"):
+        verifying_contract = "0x0000000000000000000000000000000000000000"
+
     domain = {
         "name": requirements.get(
             "extra",
@@ -142,7 +147,7 @@ def _sign_payment(requirements: dict) -> dict:
             network,
             84532
         ),
-        "verifyingContract": requirements["asset"],
+        "verifyingContract": verifying_contract,
     }
 
     message_types = {
