@@ -568,7 +568,7 @@
       reportDiv.innerHTML = '<div style="text-align: center; padding: 60px 0; color: var(--algo-teal); font-family: var(--font-mono);"><p>⚡ Executing Agent Graph & Algorand x402 Settlement...</p></div>';
 
       try {
-        const resp = await fetch('http://localhost:8000/research', {
+        const resp = await fetch('/research', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query })
