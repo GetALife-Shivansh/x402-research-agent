@@ -581,7 +581,21 @@
         const data = await resp.json();
         
         // Render Markdown
-        reportDiv.innerHTML = marked.parse(data.report_markdown || data.final_report || data.report || '');
+        const rawMarkdown = data.report_markdown || data.final_report || data.report || '';
+        reportDiv.innerHTML = marked.parse(rawMarkdown);
+
+        // Render LaTeX equations with KaTeX
+        if (window.renderMathInElement) {
+          renderMathInElement(reportDiv, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\(', right: '\\)', display: false },
+              { left: '\\[', right: '\\]', display: true }
+            ],
+            throwOnError: false
+          });
+        }
 
         // Extract ledger payments if present
         const paymentData = data.payments || data.ledger;
