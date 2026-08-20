@@ -3,35 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>x402 · Autonomous Research Orchestrator</title>
+  <title>x402 · Autonomous Algorand Research Orchestrator</title>
 
   <!-- External Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
 
   <!-- Google Fonts: Syne (Display), Outfit (Body), JetBrains Mono (Code/Financial) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #04060a;
-      --bg-card: rgba(10, 16, 28, 0.75);
-      --bg-panel: rgba(14, 23, 40, 0.85);
+      --bg-dark: #03070b;
+      --bg-card: rgba(8, 14, 23, 0.75);
+      --bg-panel: rgba(13, 21, 35, 0.85);
 
-      --accent-emerald: #10b981;
-      --accent-emerald-glow: rgba(16, 185, 129, 0.25);
-      --accent-cyan: #06b6d4;
-      --accent-indigo: #6366f1;
-      --accent-violet: #8b5cf6;
+      /* Algorand Aesthetic Theme */
+      --algo-teal: #00efb8;
+      --algo-teal-glow: rgba(0, 239, 184, 0.25);
+      --algo-cyan: #00d2ff;
+      --algo-blue: #3b82f6;
+      --algo-emerald: #10b981;
+      --algo-purple: #8b5cf6;
 
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --text-dim: #6b7280;
 
-      --border-glow: rgba(16, 185, 129, 0.18);
-      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-glow: rgba(0, 239, 184, 0.25);
+      --border-subtle: rgba(255, 255, 255, 0.08);
 
       --font-display: 'Syne', sans-serif;
       --font-body: 'Outfit', sans-serif;
@@ -53,16 +54,16 @@
       overflow-x: hidden;
     }
 
-    /* Ambient Cyber Background */
+    /* Ambient Algorand Mesh Canvas */
     .bg-canvas {
       position: fixed;
       inset: 0;
       z-index: -3;
       background: 
-        radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 50% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-        linear-gradient(180deg, #04060a 0%, #080c16 100%);
+        radial-gradient(circle at 15% 20%, rgba(0, 239, 184, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(0, 210, 255, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+        linear-gradient(180deg, #03070b 0%, #060d16 100%);
     }
 
     .bg-grid {
@@ -77,16 +78,16 @@
       mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 100%);
     }
 
-    /* Falling Particles */
+    /* Particle Stream */
     .particle {
       position: fixed;
       top: -10px;
       z-index: -1;
       width: 4px;
       height: 4px;
-      background: var(--accent-emerald);
+      background: var(--algo-teal);
       border-radius: 50%;
-      box-shadow: 0 0 8px var(--accent-emerald);
+      box-shadow: 0 0 8px var(--algo-teal);
       opacity: 0;
       pointer-events: none;
       animation: particleFall linear infinite;
@@ -99,11 +100,11 @@
       100% { transform: translateY(105vh) translateX(30px); opacity: 0; }
     }
 
-    /* Page Container */
+    /* Layout */
     .app-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 48px 24px 220px;
+      padding: 40px 24px 200px;
       position: relative;
     }
 
@@ -113,13 +114,13 @@
       align-items: center;
       gap: 10px;
       padding: 6px 16px;
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      background: rgba(0, 239, 184, 0.08);
+      border: 1px solid rgba(0, 239, 184, 0.3);
       border-radius: 100px;
       font-family: var(--font-mono);
       font-size: 0.78rem;
       letter-spacing: 0.08em;
-      color: var(--accent-emerald);
+      color: var(--algo-teal);
       text-transform: uppercase;
       margin-bottom: 20px;
       backdrop-filter: blur(8px);
@@ -129,8 +130,8 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--accent-emerald);
-      box-shadow: 0 0 10px var(--accent-emerald);
+      background: var(--algo-teal);
+      box-shadow: 0 0 10px var(--algo-teal);
       animation: pulseGlow 2s infinite;
     }
 
@@ -152,7 +153,7 @@
     }
 
     h1.hero-title .gradient-span {
-      background: linear-gradient(135deg, var(--accent-emerald) 0%, var(--accent-cyan) 50%, var(--accent-indigo) 100%);
+      background: linear-gradient(135deg, var(--algo-teal) 0%, var(--algo-cyan) 50%, var(--algo-blue) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -161,1060 +162,466 @@
       color: var(--text-muted);
       font-size: 1.05rem;
       font-weight: 300;
-      max-width: 720px;
+      max-width: 760px;
       line-height: 1.6;
       margin-bottom: 32px;
     }
 
-    /* Action Bar / Controls */
-    .toolbar-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
+    /* Stats Bar Header */
+    .stats-header-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
     }
 
-    .action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.03);
+    .stat-card {
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      color: var(--text-muted);
-      font-family: var(--font-body);
-      font-weight: 500;
-      font-size: 0.88rem;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 16px 20px;
+      backdrop-filter: blur(16px);
+      transition: all 0.25s ease;
     }
 
-    .action-btn:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.2);
-      color: var(--text-main);
+    .stat-card:hover {
+      border-color: rgba(0, 239, 184, 0.4);
       transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
-    .action-btn.active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
-      border-color: var(--accent-emerald);
-      color: #ffffff;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
-    }
-
-    .action-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .action-btn-primary {
-      margin-left: auto;
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: var(--accent-emerald);
-    }
-
-    .action-btn-primary:hover {
-      background: rgba(16, 185, 129, 0.22);
-      border-color: var(--accent-emerald);
-      color: #ffffff;
-    }
-
-    /* Live Status Bar */
-    .status-tracker {
-      min-height: 24px;
+    .stat-card .label {
+      font-size: 0.75rem;
       font-family: var(--font-mono);
-      font-size: 0.84rem;
-      color: var(--accent-cyan);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .val {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--algo-teal);
+    }
+
+    .stat-card .subtext {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
     }
 
     /* Main Content Layout */
     .content-grid {
-      display: flex;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: 1fr 380px;
       gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* Report Card */
     #report {
-      flex: 1;
-      min-width: 0;
-      display: none;
-      padding: 36px 40px;
       background: var(--bg-card);
-      border: 1px solid var(--border-glow);
-      border-radius: 24px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 36px;
       backdrop-filter: blur(16px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-      line-height: 1.7;
-      font-size: 1rem;
-      color: var(--text-main);
+      min-height: 520px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+
+      /* Typography for Markdown */
+      font-size: 0.96rem;
+      line-height: 1.75;
+      color: #e5e7eb;
     }
 
     #report h1, #report h2, #report h3 {
       font-family: var(--font-display);
       color: #ffffff;
-      margin: 1.4em 0 0.6em;
+      margin-top: 1.8em;
+      margin-bottom: 0.8em;
       line-height: 1.25;
     }
 
-    #report h1 {
-      font-size: 1.65rem;
-      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-      padding-bottom: 0.4em;
-    }
+    #report h1 { font-size: 1.7rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
+    #report h2 { font-size: 1.35rem; color: var(--algo-teal); }
+    #report h3 { font-size: 1.1rem; }
 
-    #report h2 {
-      font-size: 1.3rem;
-      color: var(--accent-emerald);
-    }
-
-    #report h3 {
-      font-size: 1.1rem;
-      color: var(--accent-cyan);
-    }
-
-    #report p {
-      margin: 1em 0;
-      color: #d1d5db;
-    }
-
-    #report strong {
-      color: #ffffff;
-      font-weight: 600;
-    }
-
-    #report ul, #report ol {
-      margin: 0.8em 0;
-      padding-left: 1.5em;
-    }
-
-    #report li {
-      margin: 0.4em 0;
-      color: #d1d5db;
-    }
-
-    #report li::marker {
-      color: var(--accent-emerald);
-    }
+    #report p { margin-bottom: 1.2em; }
+    #report ul, #report ol { margin-left: 1.5em; margin-bottom: 1.2em; }
+    #report li { margin-bottom: 0.4em; }
 
     #report code {
       font-family: var(--font-mono);
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--accent-emerald);
+      background: rgba(0, 239, 184, 0.1);
+      color: var(--algo-teal);
       padding: 2px 7px;
       border-radius: 6px;
-      font-size: 0.88em;
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      font-size: 0.86rem;
     }
 
     #report pre {
-      background: #060913;
+      background: rgba(0, 0, 0, 0.6);
       border: 1px solid var(--border-subtle);
-      padding: 16px 20px;
-      border-radius: 14px;
+      padding: 16px;
+      border-radius: 12px;
       overflow-x: auto;
-      margin: 1.2em 0;
+      margin-bottom: 1.5em;
     }
 
     #report pre code {
       background: transparent;
       padding: 0;
-      border: none;
-      color: var(--text-main);
     }
 
     #report blockquote {
-      margin: 1.2em 0;
-      padding: 12px 20px;
-      border-left: 3px solid var(--accent-cyan);
-      background: rgba(6, 182, 212, 0.06);
-      border-radius: 0 12px 12px 0;
+      border-left: 3px solid var(--algo-teal);
+      padding-left: 16px;
       color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 1.2em;
     }
 
-    #report table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin: 1.5em 0;
-      font-size: 0.9rem;
-      border-radius: 14px;
-      overflow: hidden;
+    #report hr {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 32px 0;
+    }
+
+    #report a {
+      color: var(--algo-cyan);
+      text-decoration: none;
+    }
+
+    #report a:hover {
+      text-decoration: underline;
+    }
+
+    /* Live Payment Feed Sidebar */
+    .payment-sidebar {
+      background: var(--bg-card);
       border: 1px solid var(--border-subtle);
-    }
-
-    #report th {
-      background: rgba(255, 255, 255, 0.04);
-      color: #ffffff;
-      font-weight: 600;
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    #report td {
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    #report tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* Side Panels Wrapper */
-    .side-panels {
-      width: 360px;
-      flex-shrink: 0;
-      display: none;
-      flex-direction: column;
-      gap: 16px;
-      position: sticky;
-      top: 24px;
-    }
-
-    .side-panels.has-open {
-      display: flex;
-    }
-
-    /* Side Panel Cards */
-    .panel {
-      display: none;
-      padding: 24px;
-      background: var(--bg-panel);
-      border: 1px solid var(--border-glow);
       border-radius: 20px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
-      max-height: 72vh;
-      overflow-y: auto;
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE/Edge */
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
     }
 
-    .panel::-webkit-scrollbar {
-      display: none; /* Chrome/Safari/Opera */
-    }
-
-    .panel h3 {
+    .sidebar-title {
       font-family: var(--font-display);
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      color: var(--accent-emerald);
+      color: #ffffff;
       margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-
-    #citations-body {
-      font-size: 0.88rem;
-      line-height: 1.65;
-      color: var(--text-muted);
-      word-break: break-word;
-      white-space: pre-wrap;
-    }
-
-    #citations-body a {
-      color: var(--accent-cyan);
-      text-decoration: none;
-      border-bottom: 1px dotted var(--accent-cyan);
-      transition: color 0.15s ease;
-    }
-
-    #citations-body a:hover {
-      color: var(--accent-emerald);
-    }
-
-    /* Ledger Table */
-    table.ledger-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-    }
-
-    table.ledger-table th {
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      text-align: left;
-      padding: 8px 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    table.ledger-table td {
-      padding: 10px 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      color: var(--text-main);
-      word-break: break-all;
-    }
-
-    table.ledger-table td:nth-child(3) {
-      color: var(--accent-emerald);
-      font-weight: 600;
-    }
-
-    /* Drawer & Overlay */
-    .history-drawer {
-      position: fixed;
-      top: 0;
-      left: -380px;
-      width: 360px;
-      height: 100vh;
-      background: rgba(8, 12, 22, 0.95);
-      backdrop-filter: blur(24px);
-      border-right: 1px solid var(--border-glow);
-      z-index: 100;
-      transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      flex-direction: column;
-      box-shadow: 20px 0 50px rgba(0, 0, 0, 0.7);
-    }
-
-    .history-drawer.open {
-      left: 0;
-    }
-
-    .history-header {
-      padding: 24px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
       justify-content: space-between;
     }
 
-    .history-header h2 {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #ffffff;
+    .algo-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: rgba(0, 239, 184, 0.12);
+      color: var(--algo-teal);
+      padding: 4px 10px;
+      border-radius: 100px;
+      border: 1px solid rgba(0, 239, 184, 0.3);
     }
 
-    .close-drawer-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 8px;
-      transition: color 0.15s ease;
-    }
-
-    .close-drawer-btn:hover {
-      color: #ffffff;
-    }
-
-    .history-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
+    .payment-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .history-item {
-      padding: 14px 16px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.02);
+    .payment-item {
+      background: rgba(13, 21, 35, 0.7);
       border: 1px solid var(--border-subtle);
-      cursor: pointer;
+      border-radius: 12px;
+      padding: 14px;
       transition: all 0.2s ease;
+      animation: fadeIn 0.3s ease-out;
     }
 
-    .history-item:hover {
-      background: rgba(16, 185, 129, 0.08);
-      border-color: rgba(16, 185, 129, 0.3);
-      transform: translateX(4px);
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .history-item.active {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: var(--accent-emerald);
+    .payment-item:hover {
+      border-color: rgba(0, 239, 184, 0.4);
+      background: rgba(13, 21, 35, 0.95);
     }
 
-    .history-item-query {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .payment-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 6px;
     }
 
-    .history-item-meta {
+    .payment-service-name {
       font-family: var(--font-mono);
-      font-size: 0.74rem;
-      color: var(--text-dim);
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .history-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(4, 6, 10, 0.7);
-      backdrop-filter: blur(6px);
-      z-index: 99;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .history-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* Floating Composer Bottom Bar */
-    .composer-wrap {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      padding: 24px 20px 32px;
-      background: linear-gradient(to top, #04060a 65%, transparent 100%);
-      pointer-events: none;
-      z-index: 20;
-    }
-
-    .composer {
-      pointer-events: auto;
-      width: 100%;
-      max-width: 800px;
-      background: rgba(12, 18, 32, 0.9);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      border-radius: 20px;
-      padding: 10px 12px 10px 24px;
-      display: flex;
-      align-items: flex-end;
-      gap: 12px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(16, 185, 129, 0.1);
-      transition: border-color 0.2s ease;
-    }
-
-    .composer:focus-within {
-      border-color: var(--accent-emerald);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(16, 185, 129, 0.2);
-    }
-
-    .composer textarea {
-      flex: 1;
-      resize: none;
-      border: none;
-      outline: none;
-      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
       color: #ffffff;
-      font-size: 1.02rem;
-      font-family: var(--font-body);
-      max-height: 160px;
-      min-height: 28px;
-      padding: 8px 0;
-      line-height: 1.45;
+      text-transform: capitalize;
     }
 
-    .composer textarea::placeholder {
+    .payment-amount {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--algo-teal);
+    }
+
+    .payment-tx-hash {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
       color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .send-btn {
-      flex-shrink: 0;
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent-emerald) 0%, var(--accent-cyan) 100%);
-      border: none;
-      color: #04060a;
-      cursor: pointer;
+    .payment-net {
+      font-size: 0.7rem;
+      color: var(--algo-cyan);
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    /* Fixed Bottom Search Dock */
+    .dock-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 48px);
+      max-width: 820px;
+      z-index: 100;
+    }
+
+    .search-card {
+      background: rgba(10, 18, 30, 0.92);
+      border: 1px solid rgba(0, 239, 184, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 239, 184, 0.15);
+      border-radius: 20px;
+      padding: 10px 14px 10px 20px;
+      backdrop-filter: blur(20px);
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .submit-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--algo-teal) 0%, var(--algo-cyan) 100%);
+      border: none;
+      border-radius: 14px;
+      color: #03070b;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 4px 15px rgba(0, 239, 184, 0.3);
     }
 
-    .send-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 239, 184, 0.45);
     }
 
-    .send-btn:disabled {
-      opacity: 0.35;
+    .submit-btn:disabled {
+      opacity: 0.5;
       cursor: not-allowed;
-      transform: none;
       box-shadow: none;
-    }
-
-    .send-btn svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 900px) {
-      .content-grid {
-        flex-direction: column;
-      }
-      .side-panels {
-        width: 100%;
-        position: static;
-      }
-      #report {
-        padding: 24px 20px;
-      }
     }
   </style>
 </head>
 
 <body>
-
-  <!-- Ambient Background -->
+  <!-- Ambient background -->
   <div class="bg-canvas"></div>
   <div class="bg-grid"></div>
 
-  <!-- History Drawer & Backdrop -->
-  <div class="history-backdrop" id="history-backdrop"></div>
-  <div class="history-drawer" id="history-drawer">
-    <div class="history-header">
-      <h2>Research History</h2>
-      <button class="close-drawer-btn" id="close-drawer-btn">&times;</button>
-    </div>
-    <div class="history-list" id="history-list"></div>
-  </div>
+  <!-- Falling particles -->
+  <div class="particle" style="left: 10%; animation-duration: 8s; animation-delay: 0s;"></div>
+  <div class="particle" style="left: 30%; animation-duration: 12s; animation-delay: 2s;"></div>
+  <div class="particle" style="left: 60%; animation-duration: 10s; animation-delay: 1s;"></div>
+  <div class="particle" style="left: 85%; animation-duration: 14s; animation-delay: 3s;"></div>
 
-  <!-- Main Container -->
   <div class="app-container">
-
-    <!-- Header Section -->
+    <!-- Header -->
     <div class="header-badge">
-      <span class="pulse-dot"></span>
-      x402 · Autonomous Payment Protocol
+      <span class="pulse-dot"></span> Algorand Testnet Live · x402 Protocol
     </div>
 
     <h1 class="hero-title">
-      Research <span class="gradient-span">Orchestrator</span>
+      Autonomous AI Agent <br/>
+      <span class="gradient-span">Micro-Paid via Algorand</span>
     </h1>
-
     <p class="subtitle">
-      Deconstruct queries into sub-investigations, autonomously compensate x402-enabled research API services with micro-transactions, and generate verified cited syntheses.
+      Multi-agent LLM orchestrator performing real-time deep research. Each subtask dynamically triggers 402 Payment Required challenges settled autonomously in native ALGO tokens on Algorand.
     </p>
 
-    <!-- Controls / Toolbar -->
-    <div class="toolbar-bar">
-      <button class="action-btn" id="toggle-citations" disabled>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-        View Citations
-      </button>
-
-      <button class="action-btn" id="toggle-payments" disabled>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-        View x402 Payments
-      </button>
-
-      <button class="action-btn" id="toggle-history">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        History (<span id="history-count">0</span>)
-      </button>
-
-      <button class="action-btn action-btn-primary" id="new-chat-btn">
-        + New Query
-      </button>
+    <!-- Stats Header Bar -->
+    <div class="stats-header-bar">
+      <div class="stat-card">
+        <div class="label">Settlement Network</div>
+        <div class="val" style="font-size: 1.1rem; color: #ffffff;">Algorand Testnet</div>
+        <div class="subtext">Chain ID: 416002</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Settlement Asset</div>
+        <div class="val">Native ALGO</div>
+        <div class="subtext">Asset ID: 0 (MicroAlgos)</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Algorand Spent</div>
+        <div class="val" id="stat-total-algo">₳ 0.0000</div>
+        <div class="subtext" id="stat-count">0 Micro-Transactions</div>
+      </div>
     </div>
-
-    <!-- Status Message Line -->
-    <div class="status-tracker" id="status" aria-live="polite"></div>
 
     <!-- Main Content Area -->
     <div class="content-grid">
-
-      <!-- Markdown Report Output -->
-      <div id="report"></div>
-
-      <!-- Side Panels (Citations / Payments) -->
-      <div class="side-panels" id="side-panels">
-
-        <!-- Citations Panel -->
-        <div class="panel" id="citations-panel">
-          <h3>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-            Citations & Sources
-          </h3>
-          <div id="citations-body"></div>
+      <!-- Report Body -->
+      <div id="report">
+        <div style="text-align: center; color: var(--text-dim); padding: 80px 20px;">
+          <svg style="width: 48px; height: 48px; margin-bottom: 16px; color: var(--text-dim); opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+          </svg>
+          <p style="font-size: 1.1rem; color: var(--text-muted);">Enter a research query below to trigger autonomous ALGO payment agent graph.</p>
         </div>
-
-        <!-- Payments Ledger Panel -->
-        <div class="panel" id="payments-panel">
-          <h3>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-            Autonomous Payment Ledger
-          </h3>
-          <table class="ledger-table" id="ledger">
-            <thead>
-              <tr>
-                <th>Service</th>
-                <th>Tx</th>
-                <th>USDC</th>
-                <th>Net</th>
-              </tr>
-            </thead>
-            <tbody id="ledger-body"></tbody>
-          </table>
-        </div>
-
       </div>
 
-    </div>
-
-  </div>
-
-  <!-- Bottom Floating Query Composer -->
-  <div class="composer-wrap">
-    <div class="composer">
-      <textarea id="query" rows="1" placeholder="Ask anything you want researched..." autocomplete="off"></textarea>
-      <button class="send-btn" id="go" title="Send Query" aria-label="Send Query">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="19" x2="12" y2="5"></line>
-          <polyline points="5 12 12 5 19 12"></polyline>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Background Particle Animation Script -->
-  <script>
-    (function spawnParticles() {
-      const count = 16;
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement("div");
-        p.className = "particle";
-        p.style.left = Math.random() * 100 + "vw";
-        p.style.animationDuration = (8 + Math.random() * 10) + "s";
-        p.style.animationDelay = (Math.random() * 8) + "s";
-        document.body.appendChild(p);
-      }
-    })();
-  </script>
-
-  <!-- Main Logic & Client-Side SQLite Storage Script -->
-  <script>
-    const btn = document.getElementById("go");
-    const queryEl = document.getElementById("query");
-    const statusEl = document.getElementById("status");
-    const reportEl = document.getElementById("report");
-
-    const citationsToggle = document.getElementById("toggle-citations");
-    const paymentsToggle = document.getElementById("toggle-payments");
-
-    const sidePanels = document.getElementById("side-panels");
-    const citationsPanel = document.getElementById("citations-panel");
-    const paymentsPanel = document.getElementById("payments-panel");
-    const citationsBody = document.getElementById("citations-body");
-    const ledgerBody = document.getElementById("ledger-body");
-
-    const toggleHistoryBtn = document.getElementById("toggle-history");
-    const newChatBtn = document.getElementById("new-chat-btn");
-    const historyDrawer = document.getElementById("history-drawer");
-    const historyBackdrop = document.getElementById("history-backdrop");
-    const closeDrawerBtn = document.getElementById("close-drawer-btn");
-    const historyList = document.getElementById("history-list");
-    const historyCountEl = document.getElementById("history-count");
-
-    /* SQL.JS Local Storage Setup */
-    let db = null;
-
-    async function initSQL() {
-      try {
-        const SQL = await initSqlJs({
-          locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-        });
-
-        const savedDb = localStorage.getItem("local_chat_db");
-        if (savedDb) {
-          const uInt8Array = new Uint8Array(JSON.parse(savedDb));
-          db = new SQL.Database(uInt8Array);
-        } else {
-          db = new SQL.Database();
-        }
-
-        db.run(`
-          CREATE TABLE IF NOT EXISTS history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            query TEXT NOT NULL,
-            report_markdown TEXT NOT NULL,
-            payments_json TEXT
-          );
-        `);
-
-        saveDbToLocalStorage();
-        loadHistoryList();
-      } catch (err) {
-        console.error("Failed to initialize client-side SQLite database:", err);
-      }
-    }
-
-    function saveDbToLocalStorage() {
-      if (!db) return;
-      const data = db.export();
-      const array = Array.from(data);
-      try {
-        localStorage.setItem("local_chat_db", JSON.stringify(array));
-      } catch (e) {
-        console.warn("Could not persist database to LocalStorage", e);
-      }
-    }
-
-    function saveQueryResult(query, reportMarkdown, paymentsData) {
-      if (!db) return;
-      const stmt = db.prepare("INSERT INTO history (query, report_markdown, payments_json) VALUES (?, ?, ?)");
-      stmt.run([query, reportMarkdown, JSON.stringify(paymentsData || null)]);
-      stmt.free();
-      saveDbToLocalStorage();
-      loadHistoryList();
-    }
-
-    function loadHistoryList() {
-      if (!db) return;
-      historyList.innerHTML = "";
-
-      const res = db.exec("SELECT id, timestamp, query, report_markdown, payments_json FROM history ORDER BY id DESC");
-      if (!res.length || !res[0].values) {
-        historyCountEl.textContent = "0";
-        historyList.innerHTML = `<div style="color: var(--text-dim); font-size: 0.85rem; padding: 16px; text-align: center;">No stored queries yet.</div>`;
-        return;
-      }
-
-      const rows = res[0].values;
-      historyCountEl.textContent = rows.length;
-
-      rows.forEach(row => {
-        const [id, timestamp, queryText, reportMarkdown, paymentsJson] = row;
-
-        const item = document.createElement("div");
-        item.className = "history-item";
-        item.dataset.id = id;
-
-        const dateStr = new Date(timestamp).toLocaleDateString(undefined, {
-          month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
-        });
-
-        item.innerHTML = `
-          <div class="history-item-query">${escapeHtml(queryText)}</div>
-          <div class="history-item-meta">
-            <span>${dateStr}</span>
-            <span>SQL #${id}</span>
+      <!-- Payment Stream Sidebar -->
+      <div class="payment-sidebar">
+        <div class="sidebar-title">
+          <span>Algorand Ledger</span>
+          <span class="algo-badge">x402 Live</span>
+        </div>
+        <div class="payment-list" id="payment-stream">
+          <div style="font-size: 0.82rem; color: var(--text-dim); text-align: center; padding: 24px 0;">
+            No transactions yet in this session.
           </div>
-        `;
+        </div>
+      </div>
+    </div>
+  </div>
 
-        item.addEventListener("click", () => {
-          document.querySelectorAll(".history-item").forEach(i => i.classList.remove("active"));
-          item.classList.add("active");
-          displaySavedHistoryItem(queryText, reportMarkdown, paymentsJson);
-          closeHistoryDrawer();
-        });
+  <!-- Search Dock -->
+  <div class="dock-container">
+    <form class="search-card" id="query-form">
+      <input type="text" class="search-input" id="query-input" placeholder="Ask deep research query (e.g. Algorand PURE PROOF OF STAKE architecture)..." required />
+      <button type="submit" class="submit-btn" id="submit-btn">
+        <span>Run Research</span>
+      </button>
+    </form>
+  </div>
 
-        historyList.appendChild(item);
-      });
-    }
+  <script>
+    let totalAlgoSpent = 0.0;
+    let paymentCount = 0;
 
-    function escapeHtml(str) {
-      return (str || "").replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-    }
+    const queryForm = document.getElementById('query-form');
+    const queryInput = document.getElementById('query-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const reportDiv = document.getElementById('report');
+    const paymentStream = document.getElementById('payment-stream');
+    const statTotalAlgo = document.getElementById('stat-total-algo');
+    const statCount = document.getElementById('stat-count');
 
-    function displaySavedHistoryItem(queryText, reportMarkdown, paymentsJsonStr) {
-      resetPanels();
-      queryEl.value = queryText;
-
-      const { body, sources } = splitSections(reportMarkdown);
-      reportEl.innerHTML = marked.parse(body);
-      reportEl.style.display = "block";
-
-      if (sources) {
-        citationsBody.innerHTML = linkify(sources);
-        citationsToggle.disabled = false;
-      }
-
-      try {
-        const paymentsData = JSON.parse(paymentsJsonStr);
-        if (paymentsData && Array.isArray(paymentsData.payments)) {
-          ledgerBody.innerHTML = "";
-          for (const p of paymentsData.payments) {
-            const row = document.createElement("tr");
-
-            const serviceCell = document.createElement("td");
-            serviceCell.textContent = p.service ?? "Unknown";
-
-            const txCell = document.createElement("td");
-            txCell.textContent = p.tx ?? "N/A";
-
-            const amountCell = document.createElement("td");
-            const amount = Number(p.amount_usdc);
-            amountCell.textContent = Number.isFinite(amount) ? `$${amount.toFixed(4)}` : "$0.0000";
-
-            const networkCell = document.createElement("td");
-            networkCell.textContent = p.network ?? "N/A";
-
-            row.appendChild(serviceCell);
-            row.appendChild(txCell);
-            row.appendChild(amountCell);
-            row.appendChild(networkCell);
-
-            ledgerBody.appendChild(row);
-          }
-
-          paymentsToggle.disabled = false;
-
-          const count = Number(paymentsData.count) || 0;
-          const total = Number(paymentsData.total_usdc) || 0;
-          statusEl.textContent = `Loaded from local SQLite DB — ${count} x402 payments recorded ($${total.toFixed(4)} USDC).`;
-        } else {
-          statusEl.textContent = "Loaded from local SQLite DB.";
-        }
-      } catch (e) {
-        statusEl.textContent = "Loaded from local SQLite DB.";
-      }
-    }
-
-    function openHistoryDrawer() {
-      historyDrawer.classList.add("open");
-      historyBackdrop.classList.add("open");
-    }
-
-    function closeHistoryDrawer() {
-      historyDrawer.classList.remove("open");
-      historyBackdrop.classList.remove("open");
-    }
-
-    toggleHistoryBtn.addEventListener("click", openHistoryDrawer);
-    closeDrawerBtn.addEventListener("click", closeHistoryDrawer);
-    historyBackdrop.addEventListener("click", closeHistoryDrawer);
-
-    newChatBtn.addEventListener("click", () => {
-      resetPanels();
-      queryEl.value = "";
-      statusEl.textContent = "";
-      document.querySelectorAll(".history-item").forEach(i => i.classList.remove("active"));
-      queryEl.focus();
-    });
-
-    initSQL();
-
-    /* Marked Config */
-    marked.setOptions({
-      breaks: false,
-      gfm: true
-    });
-
-    /* Auto-resizing Textarea */
-    queryEl.addEventListener("input", () => {
-      queryEl.style.height = "auto";
-      queryEl.style.height = Math.min(queryEl.scrollHeight, 160) + "px";
-    });
-
-    queryEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        btn.click();
-      }
-    });
-
-    /* Side Panels Visibility & Mutual Exclusion Logic */
-    function refreshSidePanelsVisibility() {
-      const anyOpen = citationsPanel.style.display === "block" || paymentsPanel.style.display === "block";
-      sidePanels.classList.toggle("has-open", anyOpen);
-    }
-
-    citationsToggle.addEventListener("click", () => {
-      const isOpen = citationsPanel.style.display === "block";
-
-      if (!isOpen) {
-        paymentsPanel.style.display = "none";
-        paymentsToggle.classList.remove("active");
-      }
-
-      citationsPanel.style.display = isOpen ? "none" : "block";
-      citationsToggle.classList.toggle("active", !isOpen);
-      refreshSidePanelsVisibility();
-    });
-
-    paymentsToggle.addEventListener("click", () => {
-      const isOpen = paymentsPanel.style.display === "block";
-
-      if (!isOpen) {
-        citationsPanel.style.display = "none";
-        citationsToggle.classList.remove("active");
-      }
-
-      paymentsPanel.style.display = isOpen ? "none" : "block";
-      paymentsToggle.classList.toggle("active", !isOpen);
-      refreshSidePanelsVisibility();
-    });
-
-    function splitSections(markdown) {
-      if (!markdown) {
-        return { body: "", sources: null };
-      }
-
-      const sourcesIdx = markdown.search(/\*\*Sources\*\*/i);
-      const ledgerIdx = markdown.search(/\*\*Autonomous Payment Ledger\*\*/i);
-
-      if (sourcesIdx === -1) {
-        return { body: markdown.trim(), sources: null };
-      }
-
-      const sourcesEnd = ledgerIdx !== -1 && ledgerIdx > sourcesIdx ? ledgerIdx : markdown.length;
-
-      const sources = markdown
-        .slice(sourcesIdx, sourcesEnd)
-        .replace(/\*\*Sources\*\*/i, "")
-        .replace(/^-+\s*\*$/m, "")
-        .trim();
-
-      const body = markdown.slice(0, sourcesIdx).trim();
-
-      return { body, sources };
-    }
-
-    function linkify(text) {
-      return text.replace(
-        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-      );
-    }
-
-    function resetPanels() {
-      reportEl.style.display = "none";
-      citationsPanel.style.display = "none";
-      paymentsPanel.style.display = "none";
-
-      citationsToggle.classList.remove("active");
-      paymentsToggle.classList.remove("active");
-
-      citationsToggle.disabled = true;
-      paymentsToggle.disabled = true;
-
-      citationsBody.innerHTML = "";
-      ledgerBody.innerHTML = "";
-
-      refreshSidePanelsVisibility();
-    }
-
-    /* Research API Dispatch */
-    btn.addEventListener("click", async () => {
-      const query = queryEl.value.trim();
+    queryForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = queryInput.value.trim();
       if (!query) return;
 
-      btn.disabled = true;
-      queryEl.disabled = true;
-
-      resetPanels();
-
-      statusEl.textContent = "Planning, researching, and paying vendors autonomously… this can take 30–90s.";
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Orchestrating...</span>';
+      reportDiv.innerHTML = '<div style="text-align: center; padding: 60px 0; color: var(--algo-teal); font-family: var(--font-mono);"><p>⚡ Executing Agent Graph & Algorand x402 Settlement...</p></div>';
 
       try {
-        const res = await fetch("/research", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const resp = await fetch('http://localhost:8000/research', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query })
         });
 
-        const text = await res.text();
-        let data;
-
-        try {
-          data = JSON.parse(text);
-        } catch (err) {
-          console.error("Backend returned non-JSON:", text);
-          throw new Error(`Backend returned ${res.status} instead of JSON`);
+        if (!resp.ok) {
+          throw new Error('HTTP Error ' + resp.status);
         }
 
-        if (!res.ok) {
-          throw new Error(data.detail || data.message || `Backend error: ${res.status}`);
+        const data = await resp.json();
+        
+        // Render Markdown
+        reportDiv.innerHTML = marked.parse(data.report_markdown || data.final_report || data.report || '');
+
+        // Extract ledger payments if present
+        const paymentData = data.payments || data.ledger;
+        if (paymentData) {
+          const list = Array.isArray(paymentData) ? paymentData : (paymentData.payments || []);
+          list.forEach(p => addPaymentToSidebar(p));
         }
 
-        if (!data.report_markdown) {
-          throw new Error("Backend response did not contain report_markdown");
-        }
-
-        const { body, sources } = splitSections(data.report_markdown);
-        reportEl.innerHTML = marked.parse(body);
-        reportEl.style.display = "block";
-
-        if (sources) {
-          citationsBody.innerHTML = linkify(sources);
-          citationsToggle.disabled = false;
-        }
-
-        if (data.payments && Array.isArray(data.payments.payments)) {
-          ledgerBody.innerHTML = "";
-          for (const p of data.payments.payments) {
-            const row = document.createElement("tr");
-
-            const serviceCell = document.createElement("td");
-            serviceCell.textContent = p.service ?? "Unknown";
-
-            const txCell = document.createElement("td");
-            txCell.textContent = p.tx ?? "N/A";
-
-            const amountCell = document.createElement("td");
-            const amount = Number(p.amount_usdc);
-            amountCell.textContent = Number.isFinite(amount) ? `$${amount.toFixed(4)}` : "$0.0000";
-
-            const networkCell = document.createElement("td");
-            networkCell.textContent = p.network ?? "N/A";
-
-            row.appendChild(serviceCell);
-            row.appendChild(txCell);
-            row.appendChild(amountCell);
-            row.appendChild(networkCell);
-
-            ledgerBody.appendChild(row);
-          }
-
-          paymentsToggle.disabled = false;
-
-          const count = Number(data.payments.count) || 0;
-          const total = Number(data.payments.total_usdc) || 0;
-          statusEl.textContent = `Done — ${count} autonomous x402 payments, $${total.toFixed(4)} USDC total. Saved to local SQLite database.`;
-        } else {
-          statusEl.textContent = "Research complete. Saved to local SQLite database.";
-        }
-
-        saveQueryResult(query, data.report_markdown, data.payments);
-
-        if (window.innerWidth <= 900) {
-          reportEl.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-
-      } catch (e) {
-        console.error("Research request failed:", e);
-        statusEl.textContent = "Error: " + (e?.message || "Something went wrong.");
+      } catch (err) {
+        reportDiv.innerHTML = `<div style="color: #ef4444; padding: 20px; font-family: var(--font-mono);">Error running research: ${err.message}. Make sure start.py is running.</div>`;
       } finally {
-        btn.disabled = false;
-        queryEl.disabled = false;
-        queryEl.value = "";
-        queryEl.style.height = "auto";
-        queryEl.focus();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Run Research</span>';
       }
     });
-  </script>
 
+    function addPaymentToSidebar(p) {
+      if (paymentCount === 0) {
+        paymentStream.innerHTML = '';
+      }
+      paymentCount++;
+      const amount = p.amount_algo || p.amount_usdc || 0.001;
+      totalAlgoSpent += parseFloat(amount);
+
+      statTotalAlgo.innerText = `₳ ${totalAlgoSpent.toFixed(4)}`;
+      statCount.innerText = `${paymentCount} Micro-Transactions`;
+
+      const item = document.createElement('div');
+      item.className = 'payment-item';
+      item.innerHTML = `
+        <div class="payment-item-header">
+          <span class="payment-service-name">${p.service || 'service'}</span>
+          <span class="payment-amount">₳ ${parseFloat(amount).toFixed(4)}</span>
+        </div>
+        <div class="payment-tx-hash">tx: ${p.tx || 'algo_tx_mock'}</div>
+        <div class="payment-net">${p.network || 'algorand-testnet'}</div>
+      `;
+      paymentStream.prepend(item);
+    }
+  </script>
 </body>
 </html>
 ]]>

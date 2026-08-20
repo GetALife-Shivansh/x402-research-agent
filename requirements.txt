@@ -11,5 +11,6 @@ groq
 tavily-python
 tenacity
 eth-account
+py-algorand-sdk
 opentelemetry-api
 opentelemetry-sdk

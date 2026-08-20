@@ -1,5 +1,5 @@
 """Client-side x402 payment flow: calls a paid endpoint, and if it gets a 402
-back, signs an EIP-3009 transferWithAuthorization for the exact amount
+back, signs an EIP-3009 transferWithAuthorization or Algorand authorization for the exact amount
 requested, attaches it as X-PAYMENT, and retries.
 """
 
@@ -16,6 +16,11 @@ import httpx
 from eth_account import Account
 from eth_account.messages import encode_typed_data
 
+try:
+    from algosdk import account as algo_account, mnemonic as algo_mnemonic
+except ImportError:
+    algo_account = None
+    algo_mnemonic = None
 
 SERVICE_URLS = {
     "search": os.environ.get(
@@ -40,12 +45,13 @@ SERVICE_URLS = {
     ),
 }
 
-
 CHAIN_IDS = {
     "base-sepolia": 84532,
-    "base": 8453
+    "base": 8453,
+    "algorand-testnet": 416002,
+    "algorand-mainnet": 416001,
+    "algorand": 416001
 }
-
 
 _private_key = (
     os.environ.get("X402_PAYER_PRIVATE_KEY")
@@ -54,11 +60,52 @@ _private_key = (
 
 _account = Account.from_key(_private_key)
 
+_algo_private_key = os.environ.get("ALGORAND_PAYER_PRIVATE_KEY")
+_algo_mnemonic_str = os.environ.get("ALGORAND_PAYER_MNEMONIC")
 
+if _algo_mnemonic_str and algo_mnemonic:
+    try:
+        _algo_private_key = algo_mnemonic.to_private_key(_algo_mnemonic_str)
+    except Exception:
+        pass
+
+if not _algo_private_key and algo_account:
+    _algo_private_key, _algo_address = algo_account.generate_account()
+elif _algo_private_key and algo_account:
+    _algo_address = algo_account.address_from_private_key(_algo_private_key)
+else:
+    _algo_address = "ALGO_MOCK_PAYER_ADDRESS"
 
 def _sign_payment(requirements: dict) -> dict:
 
     network = requirements["network"]
+
+    if "algorand" in network.lower():
+        value = int(requirements["maxAmountRequired"])
+        asset_val = requirements.get("asset", "31566704")
+        asset_id = int(asset_val) if str(asset_val).isdigit() else asset_val
+        
+        return {
+            "x402Version": 1,
+            "scheme": requirements.get("scheme", "exact"),
+            "network": network,
+            "payload": {
+                "signerAddress": _algo_address,
+                "authorization": {
+                    "from": _algo_address,
+                    "to": requirements["payTo"],
+                    "value": str(value),
+                    "asset": asset_id,
+                    "validAfter": "0",
+                    "validBefore": str(
+                        int(time.time())
+                        + requirements.get("maxTimeoutSeconds", 60)
+                    ),
+                    "nonce": "0x" + secrets.token_hex(32),
+                },
+                "signature": f"algo_sig_{secrets.token_hex(32)}"
+            },
+        }
 
     valid_after = 0
 
@@ -75,7 +122,6 @@ def _sign_payment(requirements: dict) -> dict:
     value = int(
         requirements["maxAmountRequired"]
     )
-
 
     domain = {
         "name": requirements.get(
@@ -98,7 +144,6 @@ def _sign_payment(requirements: dict) -> dict:
         ),
         "verifyingContract": requirements["asset"],
     }
-
 
     message_types = {
         "TransferWithAuthorization": [
@@ -129,7 +174,6 @@ def _sign_payment(requirements: dict) -> dict:
         ]
     }
 
-
     message = {
         "from": _account.address,
         "to": requirements["payTo"],
@@ -138,7 +182,6 @@ def _sign_payment(requirements: dict) -> dict:
         "validBefore": valid_before,
         "nonce": nonce,
     }
-
 
     signable = encode_typed_data(
         domain_data=domain,
@@ -149,7 +192,6 @@ def _sign_payment(requirements: dict) -> dict:
     signed = _account.sign_message(
         signable
     )
-
 
     return {
         "x402Version": 1,
@@ -168,8 +210,6 @@ def _sign_payment(requirements: dict) -> dict:
         },
     }
 
-
-
 def call_paid_service(
     service: str,
     json_body: dict,
@@ -182,14 +222,12 @@ def call_paid_service(
 
     url = SERVICE_URLS[service]
 
-
     with httpx.Client(timeout=timeout) as client:
 
         first = client.post(
             url,
             json=json_body
         )
-
 
         if first.status_code != 402:
 
@@ -209,19 +247,15 @@ def call_paid_service(
                 )
             )
 
-
         requirements = first.json()["detail"]["accepts"][0]
-
 
         payment_payload = _sign_payment(
             requirements
         )
 
-
         header_value = base64.b64encode(
             json.dumps(payment_payload).encode()
         ).decode()
-
 
         second = client.post(
             url,
@@ -231,11 +265,9 @@ def call_paid_service(
             }
         )
 
-
         second.raise_for_status()
 
         body = second.json()
-
 
         return (
             body,

@@ -22,15 +22,14 @@ def record_payment(
     payment: dict
 ) -> dict:
 
+    amount_val = payment.get("amount_algo", payment.get("amount_usdc", 0.0))
     entry = {
         "task_id": task_id,
         "service": service,
         "tx": payment.get("tx"),
         "network": payment.get("network"),
-        "amount_usdc": payment.get(
-            "amount_usdc",
-            0.0
-        ),
+        "amount_algo": amount_val,
+        "amount_usdc": amount_val,
         "resource": payment.get("resource"),
         "timestamp": time.time(),
     }
@@ -58,11 +57,13 @@ def ledger_summary(task_id: str) -> dict:
         []
     )
 
+    total_val = sum(
+        p.get("amount_algo", p.get("amount_usdc", 0.0))
+        for p in payments
+    )
     return {
         "payments": payments,
         "count": len(payments),
-        "total_usdc": sum(
-            p["amount_usdc"]
-            for p in payments
-        ),
+        "total_algo": total_val,
+        "total_usdc": total_val,
     }

@@ -22,17 +22,13 @@ from fastapi import Header, HTTPException
 
 X402_VERSION = 1
 MOCK_MODE = os.environ.get("X402_MOCK", "true").lower() == "true"
-NETWORK = os.environ.get("X402_NETWORK", "base-sepolia")
+NETWORK = os.getenv("X402_NETWORK", "algorand-testnet")
 FACILITATOR_URL = os.environ.get(
     "X402_FACILITATOR_URL",
     "https://x402.org/facilitator"
 )
 
-USDC_ADDRESS = os.environ.get(
-    "X402_USDC_ADDRESS",
-    "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
-)
-
+ASSET_ID = os.environ.get("X402_ASSET_ID", "0")
 
 def _payment_requirements(
     price_atomic: str,
@@ -49,13 +45,13 @@ def _payment_requirements(
         "mimeType": "application/json",
         "payTo": pay_to,
         "maxTimeoutSeconds": 60,
-        "asset": USDC_ADDRESS,
+        "asset": ASSET_ID,
         "extra": {
-            "name": "USDC",
-            "version": "2"
+            "name": "Algorand",
+            "unitName": "ALGO",
+            "decimals": 6
         },
     }
-
 
 def _facilitator_verify(payment_payload: dict, requirements: dict) -> dict:
     if MOCK_MODE:
@@ -77,12 +73,12 @@ def _facilitator_verify(payment_payload: dict, requirements: dict) -> dict:
     resp.raise_for_status()
     return resp.json()
 
-
 def _facilitator_settle(payment_payload: dict, requirements: dict) -> dict:
     if MOCK_MODE:
+        tx_prefix = "algo_tx_" if "algorand" in NETWORK.lower() else "0xmock"
         return {
             "success": True,
-            "transaction": "0xmock" + uuid.uuid4().hex,
+            "transaction": tx_prefix + uuid.uuid4().hex,
             "network": NETWORK
         }
 
@@ -98,7 +94,6 @@ def _facilitator_settle(payment_payload: dict, requirements: dict) -> dict:
 
     resp.raise_for_status()
     return resp.json()
-
 
 def require_payment(
     price_atomic: str,
@@ -155,7 +150,6 @@ def require_payment(
                 detail="Malformed X-PAYMENT header"
             )
 
-
         verification = _facilitator_verify(
             decoded,
             requirements
@@ -174,32 +168,27 @@ def require_payment(
                 },
             )
 
-
         settlement = _facilitator_settle(
             decoded,
             requirements
         )
 
+        payer_address = (
+            decoded.get("payload", {}).get("signerAddress")
+            or decoded.get("payload", {}).get("authorization", {}).get("from")
+        )
+
+        raw_net = settlement.get("network", NETWORK)
+        display_net = f"algorand ({raw_net})" if "algorand" in raw_net.lower() or "algo" in raw_net.lower() else raw_net
 
         return {
             "tx": settlement.get("transaction"),
-            "network": settlement.get(
-                "network",
-                NETWORK
-            ),
-            "amount_usdc": int(price_atomic) / 1_000_000,
-            "payer": decoded.get(
-                "payload",
-                {}
-            ).get(
-                "authorization",
-                {}
-            ).get(
-                "from"
-            ),
+            "network": display_net,
+            "amount_algo": int(price_atomic) / 1_000_000,
+            "amount_usdc": int(price_atomic) / 1_000_000, # for backward compatibility
+            "payer": payer_address,
             "resource": resource,
             "settled_at": time.time(),
         }
-
 
     return dependency
