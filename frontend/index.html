@@ -580,12 +580,17 @@
 
         const data = await resp.json();
         
-        // Render Markdown & pre-process raw LaTeX formulas like (\operatorname{...}) or \(...\)
+        // Render Markdown & pre-process raw LaTeX formulas
         let rawMarkdown = data.report_markdown || data.final_report || data.report || '';
-        
-        // Convert escaped parentheses \( ... \) and raw (\math_command...) to $ ... $ so KaTeX & marked handle them properly
-        rawMarkdown = rawMarkdown.replace(/\\\((.*?)\\\)/g, '$$$1$$');
-        rawMarkdown = rawMarkdown.replace(/\(\\([a-zA-Z]+[^\)]*)\)/g, '$$ \\$1 $$');
+
+        // 1. Convert block math \[ ... \] to $$ ... $$
+        rawMarkdown = rawMarkdown.replace(/\\\[([\s\S]*?)\\\]/g, '\n\n$$$$ $1 $$$$\n\n');
+
+        // 2. Convert \( ... \) to $ ... $
+        rawMarkdown = rawMarkdown.replace(/\\\((.*?)\\\)/g, ' $$$1$ ');
+
+        // 3. Convert parenthesized LaTeX expressions like (\operatorname{...}) or (\frac{...}) or (s=\tfrac12) to $...$
+        rawMarkdown = rawMarkdown.replace(/\(([^\n\)]*?\\[a-zA-Z]+[^\n\)]*?)\)/g, ' $$$1$ ');
 
         reportDiv.innerHTML = marked.parse(rawMarkdown);
 
@@ -598,6 +603,7 @@
               { left: '\\(', right: '\\)', display: false },
               { left: '\\[', right: '\\]', display: true }
             ],
+            ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
             throwOnError: false
           });
         }
