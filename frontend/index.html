@@ -580,8 +580,13 @@
 
         const data = await resp.json();
         
-        // Render Markdown
-        const rawMarkdown = data.report_markdown || data.final_report || data.report || '';
+        // Render Markdown & pre-process raw LaTeX formulas like (\operatorname{...}) or \(...\)
+        let rawMarkdown = data.report_markdown || data.final_report || data.report || '';
+        
+        // Convert escaped parentheses \( ... \) and raw (\math_command...) to $ ... $ so KaTeX & marked handle them properly
+        rawMarkdown = rawMarkdown.replace(/\\\((.*?)\\\)/g, '$$$1$$');
+        rawMarkdown = rawMarkdown.replace(/\(\\([a-zA-Z]+[^\)]*)\)/g, '$$ \\$1 $$');
+
         reportDiv.innerHTML = marked.parse(rawMarkdown);
 
         // Render LaTeX equations with KaTeX
