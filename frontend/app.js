@@ -241,12 +241,12 @@ function renderEvidenceList(list, type) {
   `).join('');
 }
 
-function toggleEvidence(idx) {
+window.toggleEvidence = function(idx) {
   const panel = document.getElementById(`evidence-panel-${idx}`);
   if (panel) {
     panel.classList.toggle('active');
   }
-}
+};
 
 function addPaymentToSidebar(p) {
   if (paymentCount === 0) {
