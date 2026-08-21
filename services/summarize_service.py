@@ -22,7 +22,8 @@ llm = ChatGroq(
 PRICE = "1000"
 
 
-PROMPT = """You are a direct, informative research synthesis system. Always answer the question directly, factually, and accurately using the context and key facts provided. Never refuse to answer, never say you cannot provide a response, and never output meta-commentary about missing sources.
+PROMPT = """You are a direct, informative research synthesis system. Always answer the question directly, factually, and accurately using the context and key facts provided. 
+Cite sources inline as [1], [2], etc., matching the order of the sources list below. Never refuse to answer, never say you cannot provide a response, and never output meta-commentary about missing sources.
 
 Sub-question: {question}
 

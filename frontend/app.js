@@ -66,10 +66,10 @@ queryForm.addEventListener('submit', async (e) => {
 
     let reportHtml = marked.parse(rawMarkdown);
 
-    // Build Overall Reliability Banner if present
+    // Build Overall Reliability & Fact-Check Verification Process section if present
     if (rel) {
-      const bannerHtml = renderReliabilityBanner(rel);
-      reportHtml = bannerHtml + reportHtml;
+      const processHtml = renderFactCheckProcessSection(rel);
+      reportHtml = reportHtml + processHtml;
     }
 
     reportDiv.innerHTML = reportHtml;
@@ -140,27 +140,29 @@ function updateTruthfulnessStatCard(rel, valEl, badgeEl, fillEl, subtextEl) {
   }
 }
 
-function renderReliabilityBanner(rel) {
+function renderFactCheckProcessSection(rel) {
   const scorePct = rel.overall_reliability_pct || 85;
   const badgeColor = getScoreColor(scorePct);
 
-  let verdictText = "Truthful & Strongly Supported";
-  if (scorePct < 40) verdictText = "Low Accuracy / Unsupported";
-  else if (scorePct < 70) verdictText = "Partially Truthful / Disputed";
+  let verdictText = "Verified True & Strongly Supported";
+  if (scorePct < 40) verdictText = "Unverified / Debunked";
+  else if (scorePct < 70) verdictText = "Partially True / Disputed";
 
   return `
-    <div class="reliability-banner" style="margin-bottom: 24px;">
-      <div class="reliability-header" style="align-items: center;">
-        <div class="reliability-title-group">
-          <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: #ffffff;">
-            Truthfulness Verdict: <span style="color: ${badgeColor};">${verdictText}</span>
-          </span>
-          <span class="reliability-score-badge" style="background: ${badgeColor}; font-size: 1.1rem; padding: 4px 12px;">
-            ${scorePct}% Truthfulness
-          </span>
-        </div>
-        <div style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-dim); margin-top: 6px;">
-          Verified via Algorand x402 Fact-Checking Micropayments
+    <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-card);">
+      <div class="reliability-banner" style="margin-bottom: 16px;">
+        <div class="reliability-header" style="align-items: center;">
+          <div class="reliability-title-group">
+            <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: #ffffff;">
+              Final Process Step: x402 Fact Truthfulness Audit
+            </span>
+            <span class="reliability-score-badge" style="background: ${badgeColor}; font-size: 1rem; padding: 4px 12px;">
+              Overall Truthfulness: ${scorePct}% (${verdictText})
+            </span>
+          </div>
+          <div style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-dim); margin-top: 6px;">
+            Automated truthfulness evaluation completed at graph completion.
+          </div>
         </div>
       </div>
     </div>
