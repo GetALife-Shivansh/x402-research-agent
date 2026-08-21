@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -78,6 +79,4 @@ async def health():
         "status": "ok"
     }
 
-@app.get("/")
-async def frontend():
-    return FileResponse("frontend/index.html")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
