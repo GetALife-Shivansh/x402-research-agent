@@ -1,5 +1,12 @@
 let totalAlgoSpent = 0.0;
 let paymentCount = 0;
+let researchHistory = [];
+
+const historyDrawer = document.getElementById('history-drawer');
+const historyToggleBtn = document.getElementById('history-toggle-btn');
+const historyCloseBtn = document.getElementById('history-close-btn');
+const newChatBtn = document.getElementById('new-chat-btn');
+const historyList = document.getElementById('history-list');
 
 const queryForm = document.getElementById('query-form');
 const queryInput = document.getElementById('query-input');
@@ -90,10 +97,17 @@ queryForm.addEventListener('submit', async (e) => {
 
     // Extract ledger payments if present
     const paymentData = data.payments || data.ledger;
-    if (paymentData) {
-      const list = Array.isArray(paymentData) ? paymentData : (paymentData.payments || []);
-      list.forEach(p => addPaymentToSidebar(p));
-    }
+    const paymentList = paymentData ? (Array.isArray(paymentData) ? paymentData : (paymentData.payments || [])) : [];
+    paymentList.forEach(p => addPaymentToSidebar(p));
+
+    // Save item into local storage history
+    saveSearchToHistory({
+      id: Date.now().toString(),
+      query,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      data,
+      payments: paymentList
+    });
 
   } catch (err) {
     reportDiv.innerHTML = `<div style="color: #ef4444; padding: 20px; font-family: var(--font-mono);">Error running research: ${err.message}. Make sure start.py is running.</div>`;
@@ -276,6 +290,172 @@ window.toggleEvidence = function(idx) {
     panel.classList.toggle('active');
   }
 };
+
+// --- History Drawer Event Handlers & LocalStorage Logic ---
+if (historyToggleBtn) {
+  historyToggleBtn.addEventListener('click', () => {
+    historyDrawer.classList.toggle('open');
+  });
+}
+
+if (historyCloseBtn) {
+  historyCloseBtn.addEventListener('click', () => {
+    historyDrawer.classList.remove('open');
+  });
+}
+
+if (newChatBtn) {
+  newChatBtn.addEventListener('click', () => {
+    resetToNewQuery();
+    historyDrawer.classList.remove('open');
+  });
+}
+
+function loadHistoryFromStorage() {
+  try {
+    const stored = localStorage.getItem('x402_research_history');
+    if (stored) {
+      researchHistory = JSON.parse(stored);
+      renderHistoryList();
+    }
+  } catch (e) {
+    console.error('Failed to load history:', e);
+  }
+}
+
+function saveSearchToHistory(entry) {
+  researchHistory.unshift(entry);
+  if (researchHistory.length > 20) researchHistory.pop(); // keep last 20 queries
+  try {
+    localStorage.setItem('x402_research_history', JSON.stringify(researchHistory));
+  } catch (e) {
+    console.error('Failed to save history:', e);
+  }
+  renderHistoryList();
+}
+
+function renderHistoryList() {
+  if (!historyList) return;
+  if (researchHistory.length === 0) {
+    historyList.innerHTML = `
+      <div style="font-size: 0.82rem; color: var(--text-dim); text-align: center; padding: 20px 0;">
+        No previous searches yet.
+      </div>
+    `;
+    return;
+  }
+
+  historyList.innerHTML = researchHistory.map((item, index) => {
+    const score = item.data?.reliability_summary?.overall_reliability_pct;
+    const scoreBadge = score ? `${score}% score` : 'Completed';
+    return `
+      <div class="history-item" onclick="loadHistoryItem('${item.id}')">
+        <div class="history-item-query">${escapeHtml(item.query)}</div>
+        <div class="history-item-meta">
+          <span>${item.timestamp || 'Today'}</span>
+          <span style="color: var(--algo-teal);">${scoreBadge}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, function(m) {
+    return { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#039;' }[m];
+  });
+}
+
+window.loadHistoryItem = function(id) {
+  const item = researchHistory.find(h => h.id === id);
+  if (!item) return;
+
+  queryInput.value = item.query;
+  const data = item.data;
+
+  // Reset payment sidebar & stats for loaded item
+  totalAlgoSpent = 0.0;
+  paymentCount = 0;
+  paymentStream.innerHTML = '';
+
+  const statTruthfulnessVal = document.getElementById('stat-truthfulness-val');
+  const statTruthfulnessBadge = document.getElementById('stat-truthfulness-badge');
+  const statTruthfulnessFill = document.getElementById('stat-truthfulness-fill');
+  const statTruthfulnessSubtext = document.getElementById('stat-truthfulness-subtext');
+
+  const rel = data.reliability_summary;
+  if (rel) {
+    updateTruthfulnessStatCard(rel, statTruthfulnessVal, statTruthfulnessBadge, statTruthfulnessFill, statTruthfulnessSubtext);
+  }
+
+  let rawMarkdown = data.report_markdown || data.final_report || data.report || '';
+  rawMarkdown = rawMarkdown.replace(/\\\[([\s\S]*?)\\\]/g, '\n\n$$$$ $1 $$$$\n\n');
+  rawMarkdown = rawMarkdown.replace(/\\\((.*?)\\\)/g, ' $$$1$ ');
+  rawMarkdown = rawMarkdown.replace(/\(([^\n\)]*?\\[a-zA-Z]+[^\n\)]*?)\)/g, ' $$$1$ ');
+
+  let reportHtml = marked.parse(rawMarkdown);
+
+  if (rel) {
+    const processHtml = renderFactCheckProcessSection(rel);
+    reportHtml = reportHtml + processHtml;
+  }
+
+  reportDiv.innerHTML = reportHtml;
+
+  if (window.renderMathInElement) {
+    renderMathInElement(reportDiv, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false },
+        { left: '\\[', right: '\\]', display: true }
+      ],
+      ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+      throwOnError: false
+    });
+  }
+
+  if (item.payments) {
+    item.payments.forEach(p => addPaymentToSidebar(p));
+  }
+
+  historyDrawer.classList.remove('open');
+};
+
+function resetToNewQuery() {
+  queryInput.value = '';
+  reportDiv.innerHTML = `
+    <div style="text-align: center; color: var(--text-dim); padding: 80px 20px;">
+      <svg style="width: 48px; height: 48px; margin-bottom: 16px; color: var(--text-dim); opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+      </svg>
+      <p style="font-size: 1.1rem; color: var(--text-muted);">Enter a research query below to trigger autonomous ALGO payment agent graph.</p>
+    </div>
+  `;
+
+  totalAlgoSpent = 0.0;
+  paymentCount = 0;
+  statTotalAlgo.innerText = `₳ 0.0000`;
+  statCount.innerText = `0 Micro-Transactions`;
+  paymentStream.innerHTML = `<div style="font-size: 0.82rem; color: var(--text-dim); text-align: center; padding: 24px 0;">No transactions yet in this session.</div>`;
+
+  const statTruthfulnessVal = document.getElementById('stat-truthfulness-val');
+  const statTruthfulnessBadge = document.getElementById('stat-truthfulness-badge');
+  const statTruthfulnessFill = document.getElementById('stat-truthfulness-fill');
+  const statTruthfulnessSubtext = document.getElementById('stat-truthfulness-subtext');
+
+  if (statTruthfulnessVal) statTruthfulnessVal.innerText = '--';
+  if (statTruthfulnessBadge) {
+    statTruthfulnessBadge.innerText = 'Pending';
+    statTruthfulnessBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+    statTruthfulnessBadge.style.color = 'var(--text-muted)';
+  }
+  if (statTruthfulnessFill) statTruthfulnessFill.style.width = '0%';
+  if (statTruthfulnessSubtext) statTruthfulnessSubtext.innerText = 'Waiting for research query...';
+}
+
+// Initialize chat history on app load
+loadHistoryFromStorage();
 
 function addPaymentToSidebar(p) {
   if (paymentCount === 0) {
