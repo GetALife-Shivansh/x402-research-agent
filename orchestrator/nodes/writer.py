@@ -85,16 +85,16 @@ def writer_node(state: OrchestratorState) -> dict:
         except Exception as e:
             print(f"Warning: Writer node factcheck call failed/timed out ({e}). Using fallback.")
             fc_res = {
-                "truthfulness_score": 0.85,
-                "evidence_confidence": "Medium",
-                "status": "Probably True",
-                "summary": "Verification completed via primary research synthesis.",
+                "truthfulness_score": 0.5,
+                "evidence_confidence": "Low",
+                "status": "Unverified / Pending Audit",
+                "summary": "Factcheck service unreachable; defaulted to neutral score.",
                 "supporting_evidence": [],
                 "contradicting_evidence": []
             }
             pay_fc = {"amount_algo": 0.0015, "amount_usdc": 0.0015}
 
-        score = float(fc_res.get("truthfulness_score", 0.8))
+        score = float(fc_res.get("truthfulness_score", 0.5))
         total_truthfulness += score
 
         verified_claims.append({
@@ -110,7 +110,7 @@ def writer_node(state: OrchestratorState) -> dict:
         })
 
     num_claims = len(verified_claims)
-    overall_reliability = round((total_truthfulness / num_claims * 100)) if num_claims > 0 else 85
+    overall_reliability = round((total_truthfulness / num_claims * 100)) if num_claims > 0 else 50
 
     strongly_supported = sum(1 for c in verified_claims if c["truthfulness_score"] >= 0.81)
     probably_true = sum(1 for c in verified_claims if 0.61 <= c["truthfulness_score"] < 0.81)

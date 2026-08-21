@@ -26,8 +26,13 @@ tavily = TavilyClient(
 
 PRICE = "1500"
 
-PROMPT = """You are a deep evidence-based fact verification system.
-Given a research question, target claim(s), original research context, supporting fresh web search, and contradicting fresh web search, produce a comprehensive factual audit.
+PROMPT = """You are a rigorous, highly skeptical evidence-based fact verification system.
+Your job is to critically evaluate whether the given target claim is factually true or false.
+
+STRICT SCORING RULES:
+1. If the claim makes assertions that are unsubstantiated, speculative, exaggerated, unverified, or factually incorrect (e.g. claiming major industrial chip exports for a country that has no active commercial fabrication export market), give it a LOW truthfulness_score (between 0.00 and 0.35) and set status to "Very Likely False" or "Probably False" / "Disputed".
+2. Do NOT give high scores (0.7-1.0) unless there is concrete, verified, official web evidence directly confirming the specific claim.
+3. If fresh web search fails to confirm the specific assertion, assign a low score (e.g., 0.1 - 0.4) and mark it as "Disputed" or "Unconfirmed / Unsupported".
 
 Respond ONLY with JSON matching this structure:
 {{
@@ -35,7 +40,7 @@ Respond ONLY with JSON matching this structure:
   "truthfulness_score": 0.0 - 1.0,
   "evidence_confidence": "Low" | "Medium" | "High",
   "status": "Strongly Supported" | "Probably True" | "Disputed" | "Probably False" | "Very Likely False",
-  "summary": "1-2 sentence overview of the evidence balance",
+  "summary": "1-2 sentence overview of the evidence balance and why the score was assigned",
   "supporting_evidence": [
     {{
       "explanation": "Short explanation of supporting proof",
