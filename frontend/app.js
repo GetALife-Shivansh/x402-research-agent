@@ -66,11 +66,10 @@ queryForm.addEventListener('submit', async (e) => {
 
     let reportHtml = marked.parse(rawMarkdown);
 
-    // Build Overall Reliability Banner & Claim Truthfulness Verification Sliders if present
+    // Build Overall Reliability Banner if present
     if (rel) {
       const bannerHtml = renderReliabilityBanner(rel);
-      const claimsHtml = renderFactTruthfulnessSection(rel);
-      reportHtml = bannerHtml + reportHtml + claimsHtml;
+      reportHtml = bannerHtml + reportHtml;
     }
 
     reportDiv.innerHTML = reportHtml;
@@ -145,44 +144,23 @@ function renderReliabilityBanner(rel) {
   const scorePct = rel.overall_reliability_pct || 85;
   const badgeColor = getScoreColor(scorePct);
 
+  let verdictText = "Truthful & Strongly Supported";
+  if (scorePct < 40) verdictText = "Low Accuracy / Unsupported";
+  else if (scorePct < 70) verdictText = "Partially Truthful / Disputed";
+
   return `
-    <div class="reliability-banner">
-      <div class="reliability-header">
+    <div class="reliability-banner" style="margin-bottom: 24px;">
+      <div class="reliability-header" style="align-items: center;">
         <div class="reliability-title-group">
-          <span style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: #ffffff;">
-            Overall Research Reliability
+          <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: #ffffff;">
+            Truthfulness Verdict: <span style="color: ${badgeColor};">${verdictText}</span>
           </span>
-          <span class="reliability-score-badge" style="background: ${badgeColor};">
-            ${scorePct}%
-          </span>
-        </div>
-        <div style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-dim);">
-          Evidence-based Truthfulness Meter · Algorand Verified
-        </div>
-      </div>
-      <div class="reliability-stats-row">
-        <div class="reliability-stat-item">
-          <span>${rel.total_claims_analyzed || 0} claims analyzed</span>
-        </div>
-        <div class="reliability-stat-item">
-          <span class="stat-pill" style="background: rgba(34, 197, 94, 0.15); color: var(--status-supported);">
-            ${rel.strongly_supported || 0} strongly supported
+          <span class="reliability-score-badge" style="background: ${badgeColor}; font-size: 1.1rem; padding: 4px 12px;">
+            ${scorePct}% Truthfulness
           </span>
         </div>
-        <div class="reliability-stat-item">
-          <span class="stat-pill" style="background: rgba(59, 130, 246, 0.15); color: var(--status-true);">
-            ${rel.probably_true || 0} probably true
-          </span>
-        </div>
-        <div class="reliability-stat-item">
-          <span class="stat-pill" style="background: rgba(234, 179, 8, 0.15); color: var(--status-disputed);">
-            ${rel.disputed || 0} disputed
-          </span>
-        </div>
-        <div class="reliability-stat-item">
-          <span class="stat-pill" style="background: rgba(239, 68, 68, 0.15); color: var(--status-very-false);">
-            ${rel.unsupported || 0} unsupported
-          </span>
+        <div style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-dim); margin-top: 6px;">
+          Verified via Algorand x402 Fact-Checking Micropayments
         </div>
       </div>
     </div>
