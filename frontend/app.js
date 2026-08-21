@@ -92,6 +92,29 @@ function getScoreColor(pct) {
   return 'var(--status-very-false)';
 }
 
+function updateTruthfulnessStatCard(rel) {
+  if (!statTruthfulnessVal) return;
+  const scorePct = rel.overall_reliability_pct || 85;
+  const color = getScoreColor(scorePct);
+
+  let statusLabel = 'High Trust';
+  if (scorePct < 40) statusLabel = 'Low Trust';
+  else if (scorePct < 70) statusLabel = 'Moderate Trust';
+
+  statTruthfulnessVal.innerText = `${scorePct}%`;
+  statTruthfulnessVal.style.color = color;
+
+  statTruthfulnessBadge.innerText = statusLabel;
+  statTruthfulnessBadge.style.background = `${color}25`;
+  statTruthfulnessBadge.style.color = color;
+
+  statTruthfulnessFill.style.width = `${scorePct}%`;
+  statTruthfulnessFill.style.background = color;
+
+  const total = rel.total_claims_analyzed || 0;
+  statTruthfulnessSubtext.innerText = `${total} Claims Verified`;
+}
+
 function renderReliabilityBanner(rel) {
   const scorePct = rel.overall_reliability_pct || 85;
   const badgeColor = getScoreColor(scorePct);

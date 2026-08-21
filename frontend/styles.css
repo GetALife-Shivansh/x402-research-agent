@@ -179,16 +179,53 @@ body {
 }
 
 .stat-card .val {
-  font-family: var(--font-mono);
   font-size: 1.4rem;
   font-weight: 700;
+  font-family: var(--font-mono);
   color: var(--algo-teal);
+  margin-bottom: 2px;
 }
 
 .stat-card .subtext {
   font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.stat-truthfulness-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.truthfulness-card-val-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.truthfulness-card-badge {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
-  margin-top: 2px;
+}
+
+.stat-truthfulness-bar-container {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.stat-truthfulness-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
 }
 
 /* Layout Grid */
