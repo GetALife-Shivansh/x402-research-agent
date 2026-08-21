@@ -42,6 +42,7 @@ async def research(
         "review_feedback": None,
         "retry_count": {},
         "final_report": "",
+        "reliability_summary": None,
         "total_cost_usdc": 0.0,
     }
 

@@ -218,7 +218,7 @@ def _sign_payment(requirements: dict) -> dict:
 def call_paid_service(
     service: str,
     json_body: dict,
-    timeout: float = 60.0
+    timeout: float = 180.0
 ):
     """
     Full 402 -> sign -> retry flow.
@@ -227,18 +227,53 @@ def call_paid_service(
 
     url = SERVICE_URLS[service]
 
-    with httpx.Client(timeout=timeout) as client:
+    try:
+        with httpx.Client(timeout=timeout) as client:
 
-        first = client.post(
-            url,
-            json=json_body
-        )
+            first = client.post(
+                url,
+                json=json_body
+            )
 
-        if first.status_code != 402:
+            if first.status_code != 402:
 
-            first.raise_for_status()
+                first.raise_for_status()
 
-            body = first.json()
+                body = first.json()
+
+                return (
+                    body,
+                    body.get(
+                        "payment",
+                        {
+                            "tx": None,
+                            "amount_usdc": 0.0,
+                            "network": "n/a"
+                        }
+                    )
+                )
+
+            requirements = first.json()["detail"]["accepts"][0]
+
+            payment_payload = _sign_payment(
+                requirements
+            )
+
+            header_value = base64.b64encode(
+                json.dumps(payment_payload).encode()
+            ).decode()
+
+            second = client.post(
+                url,
+                json=json_body,
+                headers={
+                    "X-PAYMENT": header_value
+                }
+            )
+
+            second.raise_for_status()
+
+            body = second.json()
 
             return (
                 body,
@@ -247,41 +282,18 @@ def call_paid_service(
                     {
                         "tx": None,
                         "amount_usdc": 0.0,
-                        "network": "n/a"
+                        "network": requirements["network"]
                     }
                 )
             )
-
-        requirements = first.json()["detail"]["accepts"][0]
-
-        payment_payload = _sign_payment(
-            requirements
-        )
-
-        header_value = base64.b64encode(
-            json.dumps(payment_payload).encode()
-        ).decode()
-
-        second = client.post(
-            url,
-            json=json_body,
-            headers={
-                "X-PAYMENT": header_value
-            }
-        )
-
-        second.raise_for_status()
-
-        body = second.json()
-
+    except Exception as exc:
+        import logging
+        logging.warning(f"Failed to call paid service at {url}: {exc}")
         return (
-            body,
-            body.get(
-                "payment",
-                {
-                    "tx": None,
-                    "amount_usdc": 0.0,
-                    "network": requirements["network"]
-                }
-            )
+            {},
+            {
+                "tx": None,
+                "amount_usdc": 0.0,
+                "network": "offline-fallback"
+            }
         )

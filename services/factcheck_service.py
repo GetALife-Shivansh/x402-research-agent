@@ -4,6 +4,7 @@ load_dotenv()
 import json
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import FastAPI, Depends
 from langchain_groq import ChatGroq
@@ -105,23 +106,30 @@ def factcheck(
     claims = payload.get("claims", [])
     claim_text = " ".join(claims) if isinstance(claims, list) else str(claims)
 
-    # 1. Active search for supporting evidence
-    support_hits = tavily.search(
-        f"{question} {claim_text}",
-        max_results=3,
-        search_depth="basic"
-    )
+    # Active search for supporting and disconfirming evidence in parallel
+    def _search_support():
+        try:
+            return tavily.search(f"{question} {claim_text}", max_results=3, search_depth="basic")
+        except Exception:
+            return {}
+
+    def _search_contra():
+        try:
+            return tavily.search(f"{claim_text} false inaccurate myth controversy criticism debate opposition", max_results=3, search_depth="basic")
+        except Exception:
+            return {}
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        f_supp = executor.submit(_search_support)
+        f_contra = executor.submit(_search_contra)
+        support_hits = f_supp.result()
+        contra_hits = f_contra.result()
+
     supporting_search = "\n".join(
         f"[{r.get('title', 'Source')}]: {r.get('content', '')[:300]} (URL: {r.get('url', '')})"
         for r in support_hits.get("results", [])
     )
 
-    # 2. Active search for disconfirming / contradicting evidence
-    contra_hits = tavily.search(
-        f"{claim_text} false inaccurate myth controversy criticism debate opposition",
-        max_results=3,
-        search_depth="basic"
-    )
     contradicting_search = "\n".join(
         f"[{r.get('title', 'Source')}]: {r.get('content', '')[:300]} (URL: {r.get('url', '')})"
         for r in contra_hits.get("results", [])

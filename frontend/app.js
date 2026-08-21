@@ -14,6 +14,21 @@ queryForm.addEventListener('submit', async (e) => {
   const query = queryInput.value.trim();
   if (!query) return;
 
+  // Get HTML element references for top stat bar
+  const statTruthfulnessVal = document.getElementById('stat-truthfulness-val');
+  const statTruthfulnessBadge = document.getElementById('stat-truthfulness-badge');
+  const statTruthfulnessFill = document.getElementById('stat-truthfulness-fill');
+  const statTruthfulnessSubtext = document.getElementById('stat-truthfulness-subtext');
+
+  if (statTruthfulnessBadge) {
+    statTruthfulnessBadge.innerText = 'Analyzing...';
+    statTruthfulnessBadge.style.background = 'rgba(56, 189, 248, 0.2)';
+    statTruthfulnessBadge.style.color = '#38bdf8';
+  }
+  if (statTruthfulnessSubtext) {
+    statTruthfulnessSubtext.innerText = 'Evaluating truthfulness claims...';
+  }
+
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<span>Orchestrating & Fact-Checking...</span>';
   reportDiv.innerHTML = '<div style="text-align: center; padding: 60px 0; color: var(--algo-teal); font-family: var(--font-mono);"><p>⚡ Executing Agent Graph, Algorand x402 Settlement & Deep Truthfulness Verification...</p></div>';
@@ -31,6 +46,12 @@ queryForm.addEventListener('submit', async (e) => {
 
     const data = await resp.json();
     
+    // Update Truthfulness stat card header if reliability summary is present
+    const rel = data.reliability_summary;
+    if (rel) {
+      updateTruthfulnessStatCard(rel, statTruthfulnessVal, statTruthfulnessBadge, statTruthfulnessFill, statTruthfulnessSubtext);
+    }
+
     // Render Markdown & pre-process raw LaTeX formulas
     let rawMarkdown = data.report_markdown || data.final_report || data.report || '';
 
@@ -46,7 +67,6 @@ queryForm.addEventListener('submit', async (e) => {
     let reportHtml = marked.parse(rawMarkdown);
 
     // Build Overall Reliability Banner & Claim Truthfulness Verification Sliders if present
-    const rel = data.reliability_summary;
     if (rel) {
       const bannerHtml = renderReliabilityBanner(rel);
       const claimsHtml = renderFactTruthfulnessSection(rel);
@@ -92,8 +112,8 @@ function getScoreColor(pct) {
   return 'var(--status-very-false)';
 }
 
-function updateTruthfulnessStatCard(rel) {
-  if (!statTruthfulnessVal) return;
+function updateTruthfulnessStatCard(rel, valEl, badgeEl, fillEl, subtextEl) {
+  if (!valEl) return;
   const scorePct = rel.overall_reliability_pct || 85;
   const color = getScoreColor(scorePct);
 
@@ -101,18 +121,24 @@ function updateTruthfulnessStatCard(rel) {
   if (scorePct < 40) statusLabel = 'Low Trust';
   else if (scorePct < 70) statusLabel = 'Moderate Trust';
 
-  statTruthfulnessVal.innerText = `${scorePct}%`;
-  statTruthfulnessVal.style.color = color;
+  valEl.innerText = `${scorePct}%`;
+  valEl.style.color = color;
 
-  statTruthfulnessBadge.innerText = statusLabel;
-  statTruthfulnessBadge.style.background = `${color}25`;
-  statTruthfulnessBadge.style.color = color;
+  if (badgeEl) {
+    badgeEl.innerText = statusLabel;
+    badgeEl.style.background = `${color}25`;
+    badgeEl.style.color = color;
+  }
 
-  statTruthfulnessFill.style.width = `${scorePct}%`;
-  statTruthfulnessFill.style.background = color;
+  if (fillEl) {
+    fillEl.style.width = `${scorePct}%`;
+    fillEl.style.background = color;
+  }
 
-  const total = rel.total_claims_analyzed || 0;
-  statTruthfulnessSubtext.innerText = `${total} Claims Verified`;
+  if (subtextEl) {
+    const total = rel.total_claims_analyzed || 0;
+    subtextEl.innerText = `${total} Claims Verified`;
+  }
 }
 
 function renderReliabilityBanner(rel) {

@@ -20,4 +20,5 @@ class OrchestratorState(TypedDict):
     review_feedback: Optional[str]
     retry_count: dict
     final_report: str
+    reliability_summary: Optional[dict]
     total_cost_usdc: Annotated[float, operator.add]
