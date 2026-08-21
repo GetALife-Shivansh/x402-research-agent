@@ -62,6 +62,7 @@ async def research(
         return {
             "task_id": task_id,
             "report_markdown": result.get("final_report", ""),
+            "reliability_summary": result.get("reliability_summary"),
             "plan": result.get("plan"),
             "payments": summary,
         }
