@@ -53,7 +53,7 @@ async def research(
     }
 
     try:
-        result = graph.invoke(
+        result = await graph.ainvoke(
             state,
             config=config
         )

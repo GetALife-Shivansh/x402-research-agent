@@ -1,3 +1,4 @@
+import asyncio
 from langgraph.types import Send
 
 from orchestrator.payments.ledger import record_payment
@@ -37,7 +38,7 @@ def fan_out_to_researchers(state: OrchestratorState):
 
 
 @traced_node("researcher")
-def researcher_node(payload: dict) -> dict:
+async def researcher_node(payload: dict) -> dict:
 
     subtask = payload["subtask"]
 
@@ -47,7 +48,8 @@ def researcher_node(payload: dict) -> dict:
 
 
     # 1) Paid search
-    search_res, pay_search = call_paid_service(
+    search_res, pay_search = await asyncio.to_thread(
+        call_paid_service,
         "search",
         {
             "query": question,
@@ -78,7 +80,8 @@ def researcher_node(payload: dict) -> dict:
 
 
     # 2) Paid enrichment
-    enrich_res, pay_enrich = call_paid_service(
+    enrich_res, pay_enrich = await asyncio.to_thread(
+        call_paid_service,
         "enrich",
         {
             "question": question,
@@ -95,7 +98,8 @@ def researcher_node(payload: dict) -> dict:
 
     # 3) Paid fact-check (with fallback error handling for timeouts)
     try:
-        factcheck_res, pay_fc = call_paid_service(
+        factcheck_res, pay_fc = await asyncio.to_thread(
+            call_paid_service,
             "factcheck",
             {
                 "question": question,
@@ -105,7 +109,7 @@ def researcher_node(payload: dict) -> dict:
                 ),
                 "context": context,
             },
-            timeout=180.0
+            timeout=30.0
         )
         record_payment(
             task_id,
@@ -126,7 +130,8 @@ def researcher_node(payload: dict) -> dict:
 
 
     # 4) Paid citation-aware synthesis
-    summarize_res, pay_sum = call_paid_service(
+    summarize_res, pay_sum = await asyncio.to_thread(
+        call_paid_service,
         "summarize",
         {
             "question": question,

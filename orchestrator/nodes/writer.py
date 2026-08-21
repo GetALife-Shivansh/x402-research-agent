@@ -1,3 +1,4 @@
+import asyncio
 from orchestrator.payments.ledger import (
     ledger_summary,
     record_payment
@@ -11,7 +12,7 @@ from orchestrator.state import OrchestratorState
 from orchestrator.tracing import traced_node
 
 @traced_node("writer")
-def writer_node(state: OrchestratorState) -> dict:
+async def writer_node(state: OrchestratorState) -> dict:
 
     global_sources = []
     seen = {}
@@ -32,7 +33,8 @@ def writer_node(state: OrchestratorState) -> dict:
         )
 
     # 1. Call paid report generation service
-    report_res, pay_report = call_paid_service(
+    report_res, pay_report = await asyncio.to_thread(
+        call_paid_service,
         "report",
         {
             "query": state["query"],
@@ -67,14 +69,15 @@ def writer_node(state: OrchestratorState) -> dict:
             continue
 
         try:
-            fc_res, pay_fc = call_paid_service(
+            fc_res, pay_fc = await asyncio.to_thread(
+                call_paid_service,
                 "factcheck",
                 {
                     "question": q,
                     "claims": [claim_text],
                     "context": ans[:500]
                 },
-                timeout=180.0
+                timeout=30.0
             )
 
             record_payment(

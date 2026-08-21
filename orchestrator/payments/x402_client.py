@@ -218,7 +218,7 @@ def _sign_payment(requirements: dict) -> dict:
 def call_paid_service(
     service: str,
     json_body: dict,
-    timeout: float = 180.0
+    timeout: float = 30.0
 ):
     """
     Full 402 -> sign -> retry flow.

@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import asyncio
 import uuid
 
 from orchestrator.graph import graph
@@ -38,9 +39,11 @@ def main():
     }
 
 
-    result = graph.invoke(
-        state,
-        config=config
+    result = asyncio.run(
+        graph.ainvoke(
+            state,
+            config=config
+        )
     )
 
 
