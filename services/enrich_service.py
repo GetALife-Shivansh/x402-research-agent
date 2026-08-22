@@ -17,7 +17,7 @@ app = FastAPI(title="Paid Data Enrichment Service")
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
     temperature=0,
-    api_key=os.environ["GROQ_API_KEY_ENRICH"]
+    api_key=os.environ.get("GROQ_API_KEY_ENRICH", "dummy_key")
 )
 
 
@@ -58,7 +58,7 @@ def enrich(
     payment=Depends(
         require_payment(
             price_atomic=PRICE,
-            pay_to=os.environ["X402_PAY_TO_ENRICH"],
+            pay_to=os.environ.get("X402_PAY_TO_ENRICH", "0x0"),
             resource="/enrich",
             description="Structured fact & entity extraction from research context",
         )

@@ -17,11 +17,11 @@ app = FastAPI(title="Paid Fact-Check & Truthfulness Service")
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
     temperature=0,
-    api_key=os.environ["GROQ_API_KEY_FACTCHECK"]
+    api_key=os.environ.get("GROQ_API_KEY_FACTCHECK", "dummy_key")
 )
 
 tavily = TavilyClient(
-    api_key=os.environ["TAVILY_API_KEY"]
+    api_key=os.environ.get("TAVILY_API_KEY", "dummy_key")
 )
 
 PRICE = "1500"
@@ -101,7 +101,7 @@ def factcheck(
     payment=Depends(
         require_payment(
             price_atomic=PRICE,
-            pay_to=os.environ["X402_PAY_TO_FACTCHECK"],
+            pay_to=os.environ.get("X402_PAY_TO_FACTCHECK", "0x0"),
             resource="/factcheck",
             description="Truthfulness & evidence verification audit",
         )

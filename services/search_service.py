@@ -9,7 +9,7 @@ from x402_middleware import require_payment
 app = FastAPI(title="Paid Search Service")
 
 client = TavilyClient(
-    api_key=os.environ["TAVILY_API_KEY"]
+    api_key=os.environ.get("TAVILY_API_KEY", "dummy_key")
 )
 
 PRICE = "1000"  # 0.001 USDC
@@ -21,7 +21,7 @@ def search(
     payment=Depends(
         require_payment(
             price_atomic=PRICE,
-            pay_to=os.environ["X402_PAY_TO_SEARCH"],
+            pay_to=os.environ.get("X402_PAY_TO_SEARCH", "0x0"),
             resource="/search",
             description="Web search — returns top results with sources",
         )

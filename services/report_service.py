@@ -15,7 +15,7 @@ app = FastAPI(title="Paid Report Generation Service")
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
     temperature=0.3,
-    api_key=os.environ["GROQ_API_KEY_REPORT"]
+    api_key=os.environ.get("GROQ_API_KEY_REPORT", "dummy_key")
 )
 
 
@@ -39,7 +39,7 @@ def report(
     payment=Depends(
         require_payment(
             price_atomic=PRICE,
-            pay_to=os.environ["X402_PAY_TO_REPORT"],
+            pay_to=os.environ.get("X402_PAY_TO_REPORT", "0x0"),
             resource="/report",
             description="Final cited report compilation",
         )

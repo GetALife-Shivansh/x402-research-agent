@@ -15,7 +15,7 @@ app = FastAPI(title="Paid Summarization Service")
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
     temperature=0.3,
-    api_key=os.environ["GROQ_API_KEY_SUMMARIZE"]
+    api_key=os.environ.get("GROQ_API_KEY_SUMMARIZE", "dummy_key")
 )
 
 
@@ -41,7 +41,7 @@ def summarize(
     payment=Depends(
         require_payment(
             price_atomic=PRICE,
-            pay_to=os.environ["X402_PAY_TO_SUMMARIZE"],
+            pay_to=os.environ.get("X402_PAY_TO_SUMMARIZE", "0x0"),
             resource="/summarize",
             description="Citation-aware answer synthesis",
         )
