@@ -60,7 +60,7 @@ async def research(
 
         summary = ledger_summary(task_id)
 
-        # Extract sources from subtask results
+        # Extract sources from subtask results and report markdown markdown links
         sources = []
         subtask_results = result.get("subtask_results", [])
         for subtask in subtask_results:
@@ -70,9 +70,16 @@ async def research(
                     sources.extend(srcs)
                 elif isinstance(srcs, str):
                     sources.append(srcs)
+
+        # Fallback: extract markdown link URLs from final report if subtasks didn't contain explicit sources
+        import re
+        final_report = result.get("final_report", "")
+        if final_report:
+            urls = re.findall(r'https?://[^\s\)\],]+', final_report)
+            sources.extend(urls)
         
-        # Deduplicate sources
-        unique_sources = list(dict.fromkeys(sources))
+        # Clean and deduplicate sources
+        unique_sources = list(dict.fromkeys([s.strip() for s in sources if isinstance(s, str) and s.strip()]))
 
         return {
             "task_id": task_id,
