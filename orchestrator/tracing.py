@@ -39,32 +39,51 @@ def traced_node(name: str):
 
     def decorator(fn):
 
-        @functools.wraps(fn)
-        def wrapper(state, *args, **kwargs):
+        import inspect
 
-            start = time.perf_counter()
-
-            with tracer.start_as_current_span(name) as span:
-
-                if isinstance(state, dict):
-                    span.set_attribute(
-                        "task_id",
-                        str(state.get("task_id", "unknown"))
-                    )
-
-                try:
-                    return fn(
-                        state,
-                        *args,
-                        **kwargs
-                    )
-
-                finally:
-                    span.set_attribute(
-                        "duration_ms",
-                        (time.perf_counter() - start) * 1000
-                    )
-
-        return wrapper
+        if inspect.iscoroutinefunction(fn):
+            @functools.wraps(fn)
+            async def async_wrapper(state, *args, **kwargs):
+                start = time.perf_counter()
+                with tracer.start_as_current_span(name) as span:
+                    if isinstance(state, dict):
+                        span.set_attribute(
+                            "task_id",
+                            str(state.get("task_id", "unknown"))
+                        )
+                    try:
+                        return await fn(
+                            state,
+                            *args,
+                            **kwargs
+                        )
+                    finally:
+                        span.set_attribute(
+                            "duration_ms",
+                            (time.perf_counter() - start) * 1000
+                        )
+            return async_wrapper
+        else:
+            @functools.wraps(fn)
+            def wrapper(state, *args, **kwargs):
+                start = time.perf_counter()
+                with tracer.start_as_current_span(name) as span:
+                    if isinstance(state, dict):
+                        span.set_attribute(
+                            "task_id",
+                            str(state.get("task_id", "unknown"))
+                        )
+                    try:
+                        return fn(
+                            state,
+                            *args,
+                            **kwargs
+                        )
+                    finally:
+                        span.set_attribute(
+                            "duration_ms",
+                            (time.perf_counter() - start) * 1000
+                        )
+            return wrapper
 
     return decorator

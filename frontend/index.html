@@ -12,127 +12,172 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
-  <!-- Google Fonts: Syne (Display), Outfit (Body), JetBrains Mono (Code/Financial) -->
+  <!-- Google Fonts: Roboto (Material Design 3 Canonical Font) & JetBrains Mono (Financial/Technical) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <!-- App Styles -->
+  <!-- App Styles (Material You Design System) -->
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <!-- Ambient background -->
-  <div class="bg-canvas"></div>
-  <div class="bg-grid"></div>
-
-  <!-- Falling particles -->
-  <div class="particle" style="left: 10%; animation-duration: 8s; animation-delay: 0s;"></div>
-  <div class="particle" style="left: 30%; animation-duration: 12s; animation-delay: 2s;"></div>
-  <div class="particle" style="left: 60%; animation-duration: 10s; animation-delay: 1s;"></div>
-  <div class="particle" style="left: 85%; animation-duration: 14s; animation-delay: 3s;"></div>
-
-  <!-- Left Collapsible Slide-out Chat History Sidebar -->
-  <div class="history-sidebar-drawer" id="history-drawer">
-    <div class="history-header">
-      <span class="history-title">📜 Research History</span>
-      <button class="history-close-btn" id="history-close-btn" title="Close History">✕</button>
-    </div>
-    <button class="new-chat-btn" id="new-chat-btn">
-      <span>+ New Research Query</span>
-    </button>
-    <div class="history-list" id="history-list">
-      <div style="font-size: 0.82rem; color: var(--text-dim); text-align: center; padding: 20px 0;">
-        No previous searches yet.
-      </div>
-    </div>
+  <!-- Atmospheric Layered Background (MD3 Signature Organic Blur Shapes) -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="blur-shape shape-primary"></div>
+    <div class="blur-shape shape-secondary"></div>
+    <div class="blur-shape shape-tertiary"></div>
   </div>
 
-  <div class="app-container">
-    <!-- Header -->
-    <button class="history-toggle-btn" id="history-toggle-btn" title="Open Chat History">
-      📜 History
-    </button>
-    <div class="header-badge">
-      <span class="pulse-dot"></span> Algorand Testnet Live · x402 Protocol
+  <!-- Left Collapsible Navigation / Research History Drawer (MD3 Navigation Drawer) -->
+  <aside class="history-drawer" id="history-drawer" role="dialog" aria-label="Research History">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <svg class="drawer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span class="drawer-title">Research History</span>
+      </div>
+      <button class="icon-btn" id="history-close-btn" title="Close Drawer" aria-label="Close research history drawer">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
     </div>
 
-    <h1 class="hero-title">
-      Autonomous AI Agent <br/>
-      <span class="gradient-span">Micro-Paid via Algorand</span>
-    </h1>
-    <p class="subtitle">
-      Multi-agent LLM orchestrator performing real-time deep research. Each subtask dynamically triggers 402 Payment Required challenges settled autonomously in native ALGO tokens on Algorand.
-    </p>
+    <button class="btn btn-filled new-chat-btn" id="new-chat-btn" aria-label="Start new research query">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      <span>New Query</span>
+    </button>
 
-    <!-- Stats Header Bar -->
-    <div class="stats-header-bar">
+    <div class="history-list" id="history-list" role="list">
+      <div class="history-empty">No previous research sessions.</div>
+    </div>
+  </aside>
+
+  <!-- Main Container -->
+  <div class="app-layout">
+    <!-- Top Navigation Bar -->
+    <header class="top-app-bar">
+      <div class="bar-left">
+        <button class="btn btn-tonal nav-menu-btn" id="history-toggle-btn" aria-label="Open research history">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <span>History</span>
+        </button>
+        <div class="chip chip-live">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span>Algorand Testnet · x402 Protocol</span>
+        </div>
+      </div>
+      <div class="bar-right">
+        <span class="network-badge">Chain ID: 416002</span>
+      </div>
+    </header>
+
+    <!-- Hero Header Container (MD3 Large Container 48px Radius) -->
+    <section class="hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Autonomous AI Agent <br/>
+          <span class="hero-accent">Micro-Paid via Algorand</span>
+        </h1>
+        <p class="hero-subtitle">
+          Multi-agent LLM orchestrator performing real-time deep research. Dynamic HTTP 402 Payment Required challenges settled autonomously in native ALGO micro-transactions on Algorand.
+        </p>
+      </div>
+    </section>
+
+    <!-- Stats Header Bar (MD3 Tonal Surface Cards) -->
+    <section class="stats-grid" role="region" aria-label="Research statistics">
       <div class="stat-card">
-        <div class="label">Settlement Network</div>
-        <div class="val" style="font-size: 1.1rem; color: #ffffff;">Algorand Testnet</div>
-        <div class="subtext">Chain ID: 416002</div>
+        <div class="stat-label">Settlement Network</div>
+        <div class="stat-val">Algorand Testnet</div>
+        <div class="stat-subtext">Native Layer-1</div>
       </div>
       <div class="stat-card">
-        <div class="label">Settlement Asset</div>
-        <div class="val">Native ALGO</div>
-        <div class="subtext">Asset ID: 0 (MicroAlgos)</div>
+        <div class="stat-label">Settlement Asset</div>
+        <div class="stat-val">Native ALGO</div>
+        <div class="stat-subtext">MicroAlgos (Asset 0)</div>
       </div>
       <div class="stat-card">
-        <div class="label">Total Algorand Spent</div>
-        <div class="val" id="stat-total-algo">₳ 0.0000</div>
-        <div class="subtext" id="stat-count">0 Micro-Transactions</div>
+        <div class="stat-label">Total Algorand Spent</div>
+        <div class="stat-val" id="stat-total-algo">₳ 0.0000</div>
+        <div class="stat-subtext" id="stat-count">0 Micro-Transactions</div>
       </div>
       <div class="stat-card stat-truthfulness-card">
-        <div class="label">Fact Truthfulness Score</div>
-        <div class="truthfulness-card-val-row">
-          <div class="val" id="stat-truthfulness-val">--</div>
-          <span class="truthfulness-card-badge" id="stat-truthfulness-badge">Pending</span>
+        <div class="stat-label">Fact Truthfulness Score</div>
+        <div class="truthfulness-row">
+          <div class="stat-val" id="stat-truthfulness-val">--</div>
+          <span class="chip chip-status" id="stat-truthfulness-badge">Pending</span>
         </div>
-        <div class="stat-truthfulness-bar-container">
-          <div class="stat-truthfulness-bar-fill" id="stat-truthfulness-fill" style="width: 0%;"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="stat-truthfulness-fill" style="width: 0%;"></div>
         </div>
-        <div class="subtext" id="stat-truthfulness-subtext">Waiting for research query...</div>
+        <div class="stat-subtext" id="stat-truthfulness-subtext">Waiting for query...</div>
       </div>
-    </div>
+    </section>
 
-    <!-- Main Content Area -->
-    <div class="content-grid">
-      <!-- Report Body -->
-      <div id="report">
-        <div style="text-align: center; color: var(--text-dim); padding: 80px 20px;">
-          <svg style="width: 48px; height: 48px; margin-bottom: 16px; color: var(--text-dim); opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
-          </svg>
-          <p style="font-size: 1.1rem; color: var(--text-muted);">Enter a research query below to trigger autonomous ALGO payment agent graph.</p>
-        </div>
-      </div>
-
-      <!-- Payment Stream Sidebar -->
-      <div class="payment-sidebar">
-        <div class="sidebar-title">
-          <span>Algorand Ledger</span>
-          <span class="algo-badge">x402 Live</span>
-        </div>
-        <div class="payment-list" id="payment-stream">
-          <div style="font-size: 0.82rem; color: var(--text-dim); text-align: center; padding: 24px 0;">
-            No transactions yet in this session.
+    <!-- Main Content Grid -->
+    <main class="content-layout">
+      <!-- Report Body Card (MD3 Surface Container) -->
+      <article class="surface-card report-card" id="report" role="main" aria-live="polite">
+        <div class="report-placeholder">
+          <div class="placeholder-icon-container">
+            <svg class="placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+            </svg>
           </div>
+          <h3>Start Your Research</h3>
+          <p>Enter a topic in the floating search dock below to launch the autonomous agent graph & ALGO micro-settlement pipeline.</p>
         </div>
-      </div>
-    </div>
+      </article>
+
+      <!-- Ledger Sidebar Card (MD3 Surface Container) -->
+      <aside class="surface-card ledger-card" aria-label="Algorand payment ledger">
+        <div class="ledger-header">
+          <div class="ledger-title">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Algorand Ledger</span>
+          </div>
+          <span class="chip chip-active">x402 Live</span>
+        </div>
+        <div class="payment-stream" id="payment-stream" role="log" aria-live="polite">
+          <div class="payment-empty">No transactions yet in this session.</div>
+        </div>
+      </aside>
+    </main>
   </div>
 
-  <!-- Search Dock -->
-  <div class="dock-container">
-    <form class="search-card" id="query-form">
-      <input type="text" class="search-input" id="query-input" placeholder="Ask deep research query (e.g. Algorand PURE PROOF OF STAKE architecture)..." required />
-      <button type="submit" class="submit-btn" id="submit-btn">
+  <!-- Floating Search Dock (MD3 Floating Action/Search Bar Container) -->
+  <div class="search-dock-wrapper">
+    <form class="search-dock" id="query-form" role="search">
+      <div class="md3-text-field">
+        <input 
+          type="text" 
+          class="md3-input" 
+          id="query-input" 
+          placeholder="Ask deep research query (e.g. Algorand PURE PROOF OF STAKE consensus)..." 
+          required 
+          aria-label="Research query" 
+          autocomplete="off" 
+        />
+      </div>
+      <button type="submit" class="btn btn-filled submit-btn" id="submit-btn">
         <span>Run Research</span>
+        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
       </button>
     </form>
   </div>
 
-  <!-- App Script -->
+  <!-- App Logic -->
   <script src="app.js"></script>
 </body>
 </html>
