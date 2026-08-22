@@ -150,13 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Render Fact Truthfulness Score Stats
     const reliability = data.reliability_summary || {};
-    const truthScore = typeof reliability.truthfulness_score === 'number' ? reliability.truthfulness_score : null;
+    // Check both overall_reliability_pct (from backend writer.py) and truthfulness_score
+    let percentage = null;
+    if (typeof reliability.overall_reliability_pct === 'number') {
+      percentage = Math.round(reliability.overall_reliability_pct);
+    } else if (typeof reliability.truthfulness_score === 'number') {
+      percentage = Math.round(reliability.truthfulness_score <= 1 ? reliability.truthfulness_score * 100 : reliability.truthfulness_score);
+    }
 
-    if (truthScore !== null) {
-      const percentage = Math.round(truthScore * 100);
+    if (percentage !== null) {
       statTruthfulnessVal.textContent = `${percentage}%`;
       statTruthfulnessFill.style.width = `${percentage}%`;
-      statTruthfulnessSubtext.textContent = `Based on ${reliability.total_claims_checked || 0} claims checked (${reliability.verified_claims || 0} verified)`;
+      const claimsChecked = reliability.total_claims || reliability.total_claims_checked || (reliability.verified_claims ? reliability.verified_claims.length : 0);
+      const verifiedClaims = reliability.verified_count || reliability.verified_claims || (reliability.verified_claims ? reliability.verified_claims.length : 0);
+      statTruthfulnessSubtext.textContent = claimsChecked ? `Based on ${claimsChecked} claims checked` : 'Fact verification complete';
 
       if (percentage >= 80) {
         statTruthfulnessBadge.textContent = 'High Truthfulness';
