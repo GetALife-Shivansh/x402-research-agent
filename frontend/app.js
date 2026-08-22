@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Render Payment Ledger & Totals
     const payments = data.payments || {};
-    const txs = payments.ledger || [];
+    const txs = payments.payments || payments.ledger || [];
     const totalAlgo = payments.total_algo || 0.0;
 
     statTotalAlgo.textContent = `₳ ${totalAlgo.toFixed(4)}`;
@@ -134,18 +134,58 @@ document.addEventListener('DOMContentLoaded', () => {
     if (txs.length === 0) {
       paymentStream.innerHTML = '<div class="payment-empty">No transactions recorded for this query.</div>';
     } else {
-      paymentStream.innerHTML = txs.map(tx => `
+      paymentStream.innerHTML = txs.map(tx => {
+        const txHash = tx.tx || tx.txid || tx.transaction_id || '';
+        const displayHash = txHash ? (txHash.length > 14 ? txHash.substring(0, 10) + '...' : txHash) : 'Internal Ledger';
+        const displayTime = tx.timestamp ? new Date(typeof tx.timestamp === 'number' && tx.timestamp < 10000000000 ? tx.timestamp * 1000 : tx.timestamp).toLocaleTimeString() : 'Verified';
+        const amount = tx.amount_algo ?? tx.amount_usdc ?? 0.0;
+        return `
         <div class="tx-card">
           <div class="tx-top">
             <span class="tx-service">${escapeHtml(tx.service || tx.subtask || 'x402 Micro-Service')}</span>
-            <span class="tx-algo">₳ ${(tx.amount_algo || 0.0).toFixed(4)}</span>
+            <span class="tx-algo">₳ ${amount.toFixed(4)}</span>
           </div>
           <div class="tx-bottom">
-            <span class="tx-hash">${tx.txid ? tx.txid.substring(0, 10) + '...' : 'Internal Ledger'}</span>
-            <span>${tx.timestamp ? new Date(tx.timestamp).toLocaleTimeString() : 'Verified'}</span>
+            <span class="tx-hash" title="${escapeHtml(txHash)}">${escapeHtml(displayHash)}</span>
+            <span>${displayTime}</span>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
+    }
+
+    // 2.5 Render Sources Stream
+    const sources = data.sources || [];
+    const sourcesStream = document.getElementById('sources-stream');
+    const sourcesCountChip = document.getElementById('sources-count-chip');
+
+    if (sourcesCountChip) {
+      sourcesCountChip.textContent = `${sources.length} Verified`;
+    }
+
+    if (sourcesStream) {
+      if (sources.length === 0) {
+        sourcesStream.innerHTML = '<div class="payment-empty">No sources cited for this query.</div>';
+      } else {
+        sourcesStream.innerHTML = sources.map(src => {
+          let urlText = src;
+          let isUrl = false;
+          try {
+            if (src.startsWith('http://') || src.startsWith('https://')) {
+              isUrl = true;
+            }
+          } catch(e){}
+
+          return `
+            <div class="source-card">
+              <div class="source-top">
+                <span class="source-icon">🌐</span>
+                ${isUrl ? `<a href="${escapeHtml(src)}" target="_blank" rel="noopener noreferrer" class="source-link">${escapeHtml(src)}</a>` : `<span class="source-title">${escapeHtml(src)}</span>`}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
     }
 
     // 3. Render Fact Truthfulness Score Stats

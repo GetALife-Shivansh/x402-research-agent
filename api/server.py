@@ -60,11 +60,26 @@ async def research(
 
         summary = ledger_summary(task_id)
 
+        # Extract sources from subtask results
+        sources = []
+        subtask_results = result.get("subtask_results", [])
+        for subtask in subtask_results:
+            if isinstance(subtask, dict):
+                srcs = subtask.get("sources", [])
+                if isinstance(srcs, list):
+                    sources.extend(srcs)
+                elif isinstance(srcs, str):
+                    sources.append(srcs)
+        
+        # Deduplicate sources
+        unique_sources = list(dict.fromkeys(sources))
+
         return {
             "task_id": task_id,
             "report_markdown": result.get("final_report", ""),
             "reliability_summary": result.get("reliability_summary"),
             "plan": result.get("plan"),
+            "sources": unique_sources,
             "payments": summary,
         }
     except Exception as e:

@@ -392,11 +392,75 @@ body {
   line-height: 1.5;
 }
 
-/* Ledger Sidebar */
-.ledger-card {
-  padding: 24px;
+/* Sidebar Stack & Cards */
+.sidebar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   position: sticky;
   top: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-card {
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: auto;
+}
+
+.sources-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.source-card {
+  background-color: var(--md-surface);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-elevation-1);
+  transition: transform var(--motion-duration-short) ease, box-shadow var(--motion-duration-short) ease;
+  overflow: hidden;
+}
+
+.source-card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.source-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.source-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.source-link, .source-title {
+  font-size: 0.85rem;
+  font-family: var(--font-family-mono);
+  color: var(--md-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.source-link:hover {
+  text-decoration: underline;
+}
+
+.ledger-card {
+  padding: 24px;
   width: 100%;
   box-sizing: border-box;
 }

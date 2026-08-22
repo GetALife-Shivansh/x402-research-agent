@@ -136,21 +136,40 @@
         </div>
       </article>
 
-      <!-- Ledger Sidebar Card (MD3 Surface Container) -->
-      <aside class="surface-card ledger-card" aria-label="Algorand payment ledger">
-        <div class="ledger-header">
-          <div class="ledger-title">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>Algorand Ledger</span>
+      <!-- Sidebar Right Stack -->
+      <div class="sidebar-stack">
+        <!-- Sources Sidebar Card (MD3 Surface Container) -->
+        <aside class="surface-card sidebar-card" aria-label="Research Sources">
+          <div class="ledger-header">
+            <div class="ledger-title">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+              </svg>
+              <span>Research Sources</span>
+            </div>
+            <span class="chip chip-tonal" id="sources-count-chip">0 Verified</span>
           </div>
-          <span class="chip chip-active">x402 Live</span>
-        </div>
-        <div class="payment-stream" id="payment-stream" role="log" aria-live="polite">
-          <div class="payment-empty">No transactions yet in this session.</div>
-        </div>
-      </aside>
+          <div class="sources-stream" id="sources-stream" role="region" aria-live="polite">
+            <div class="payment-empty">No sources cited yet.</div>
+          </div>
+        </aside>
+
+        <!-- Ledger Sidebar Card (MD3 Surface Container) -->
+        <aside class="surface-card sidebar-card ledger-card" aria-label="Algorand payment ledger">
+          <div class="ledger-header">
+            <div class="ledger-title">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>Algorand Ledger</span>
+            </div>
+            <span class="chip chip-active">x402 Live</span>
+          </div>
+          <div class="payment-stream" id="payment-stream" role="log" aria-live="polite">
+            <div class="payment-empty">No transactions yet in this session.</div>
+          </div>
+        </aside>
+      </div>
     </main>
   </div>
 
